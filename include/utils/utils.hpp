@@ -3,28 +3,39 @@
 #include <iostream>
 
 namespace {
-  constexpr auto DEBUG = true;
-}
 
-template <class T>
+constexpr auto DEBUG = true;
+
+template <class O, class... T>
 constexpr void
-LOGI(const T &string)
+LOG(O &out, const std::string &tag, T&&... strings)
 {
-  std::cout << string << std::endl;
+  out << tag;
+  (out << ... << std::forward<T>(strings));
+  out << std::endl;
 }
 
-template <class T>
+}
+
+template <class... T>
 constexpr void
-LOGE(const T &string)
+LOGI(T&&... strings)
 {
-  std::cerr << "[E] " << string << std::endl;
+  LOG(std::cout, "", std::forward<T>(strings)...);
 }
 
-template <class T>
+template <class... T>
 constexpr void
-LOGD(const T &string)
+LOGE(T&&... strings)
+{
+  LOG(std::cerr, "[E] ", std::forward<T>(strings)...);
+}
+
+template <class... T>
+constexpr void
+LOGD(T&&... strings)
 {
   if constexpr (DEBUG) {
-    std::cerr << "[D] " << string << std::endl;
+    LOG(std::cerr, "[D] ", std::forward<T>(strings)...);
   }
 }
