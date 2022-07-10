@@ -28,5 +28,7 @@ mkdir -p build &&
 cd build &&
 CXX=/usr/bin/clang++ cmake ../ &&
 make &&
-
-[[ "$run" == "true" ]] && ./Lox1
+[[ "$run" == "true" ]] &&
+cd ../ && # Make relative paths match initial working dir.
+shift &&
+./build/Lox1 "$@"
