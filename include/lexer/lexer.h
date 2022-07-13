@@ -10,7 +10,7 @@ class Token {
 public:
   enum Type {
     LPEREN, RPEREN, LBRACE, RBRACE, COMMA, DOT, MINUS,
-    PLUS, SEMICOLON, SLASH, START,
+    PLUS, SEMICOLON, SLASH, STAR,
 
     BANG, BANG_EQ, EQ, EQ_EQ, GT, GT_EQ, LT, LT_EQ,
 
