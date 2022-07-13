@@ -22,8 +22,6 @@ public:
     EOFF // "EOF" is already used, as a macro.
   };
 
-  Token(Type tokenType, unsigned lineNumber);
-
   Token(Type tokenType, unsigned lineNunber, std::string contents);
 
 private:
