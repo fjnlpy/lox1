@@ -2,6 +2,16 @@
 
 #include <utility>
 #include <stdexcept>
+#include <cassert>
+
+namespace {
+
+bool isWhitespace(char c)
+{
+  return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+}
+
+}
 
 namespace lexer {
 
@@ -24,9 +34,13 @@ Lexer::lex(const std::string &sourceCode)
   // Reset state from last call (if any).
   tokens_.clear();
   currentLine_ = 1;
+  currentLex_.clear();
 
   while (sourceCode_) {
-    // TODO: do lexing
+    char c;
+    sourceCode_ >> c;
+    currentLex_.push_back(c);
+    lex(c);
   }
 
   if (!sourceCode_.eof()) {
@@ -36,10 +50,68 @@ Lexer::lex(const std::string &sourceCode)
     throw std::runtime_error("Unable to read from source code input stream.");
   }
 
-  // TODO: should you always use emplace instead of move?
-  tokens_.push_back(Token(Token::Type::EOFF, currentLine_));
+  addToken(Token::Type::EOFF, false);
   // TODO: I think move is correct here because tokens_ isn't a local var -- check effective cpp book.
   return std::move(tokens_);
+}
+
+void
+Lexer::lex(char c)
+{
+  // Whitespace.
+  if (isWhitespace(c)) {
+    if (c == '\n') {
+      ++currentLine_;
+    }
+    // Ignore it.
+    return;
+  }
+
+  // Single-character tokens.
+  switch (c) {
+    case '(': addToken(Token::Type::LPEREN, false); return;
+    case ')': addToken(Token::Type::RPEREN, false); return;
+    case '{': addToken(Token::Type::LBRACE, false); return;
+    case '}': addToken(Token::Type::RBRACE, false); return;
+    case ',': addToken(Token::Type::COMMA, false); return;
+    case '.': addToken(Token::Type::DOT, false); return;
+    case '-': addToken(Token::Type::MINUS, false); return;
+    case '+': addToken(Token::Type::PLUS, false); return;
+    case ';': addToken(Token::Type::SEMICOLON, false); return;
+    case '*': addToken(Token::Type::STAR, false); return;
+  }
+
+  // Single- or multi-character tokens.
+  switch (c) {
+    // TODO: lex these
+  }
+
+}
+
+void
+Lexer::addToken(Token::Type tokenType, bool includeContents)
+{
+  // TODO: should you always use emplace instead of move?
+  tokens_.push_back(Token(tokenType, currentLine_, includeContents ? std::move(currentLex_) : ""));
+  currentLex_.clear();
+}
+
+bool
+Lexer::match(char d)
+{
+  assert(("Trying to match newline, which won't increment line counter", d != '\n'));
+  char c2 = sourceCode_.peek();
+  if (c2 == std::char_traits<char>::eof()) {
+    return false;
+  } else if (c2 == d) {
+    // We know this is the same as c2, but extract it
+    // from the stream so we don't see it again.
+    sourceCode_.get();
+    return true;
+  } else {
+    // If the character doesn't match, the stream is unchanged.
+    return false;
+  }
 }
 
 }

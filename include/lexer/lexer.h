@@ -42,6 +42,11 @@ private:
   std::stringstream sourceCode_;
   std::vector<Token> tokens_;
   unsigned currentLine_ = 1;
+  std::string currentLex_;
+
+  void lex(char c);
+  void addToken(Token::Type tokenType, bool includeContents);
+  bool match(char d);
 
 };
 
