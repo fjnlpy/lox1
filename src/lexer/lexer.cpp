@@ -95,6 +95,13 @@ Lexer::lex(char c)
     case '>': addToken(match('=') ? Token::Type::GT_EQ : Token::Type::GT); return;
   }
 
+  // Comments
+  if (c == '/') {
+    if (match('/')) lexComment();
+    else addToken(Token::Type::SLASH);
+    return;
+  }
+
 }
 
 void
@@ -120,6 +127,20 @@ Lexer::match(char d)
   } else {
     // If the character doesn't match, the stream is unchanged.
     return false;
+  }
+}
+
+void
+Lexer::lexComment()
+{
+  assert(("Should only be called when '//' of comment has been lexed", currentLex_ == "//"));
+
+  int next = sourceCode_.peek();
+  // Keep discarding characters until the line ends.
+  // Don't grab newlines because we only want to handle
+  // them in one place in the lexer.
+  while (!isEof(next) && next != '\n') {
+    sourceCode_.get();
   }
 }
 

@@ -47,6 +47,7 @@ private:
   void lex(char c);
   void addToken(Token::Type tokenType, bool includeContents);
   bool match(char d);
+  void lexComment();
 
 };
 
