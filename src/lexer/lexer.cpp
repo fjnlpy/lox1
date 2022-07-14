@@ -12,6 +12,11 @@ isWhitespace(char c)
   return c == ' ' || c == '\n' || c == '\r' || c == '\t';
 }
 
+bool
+isEof(int peekResult)
+{
+  return peekResult == std::char_traits<char>::eof();
+}
 }
 
 namespace lexer {
@@ -105,7 +110,7 @@ Lexer::match(char d)
 {
   assert(("Trying to match newline, which won't increment line counter", d != '\n'));
   char c2 = sourceCode_.peek();
-  if (c2 == std::char_traits<char>::eof()) {
+  if (isEof(c2)) {
     return false;
   } else if (c2 == d) {
     // We know this is the same as c2, but extract it
