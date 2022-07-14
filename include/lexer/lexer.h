@@ -8,7 +8,7 @@ namespace lexer {
 
 class Token {
 public:
-  enum Type {
+  enum class Type {
     LPEREN, RPEREN, LBRACE, RBRACE, COMMA, DOT, MINUS,
     PLUS, SEMICOLON, SLASH, STAR,
 
