@@ -102,6 +102,12 @@ Lexer::lex(char c)
     return;
   }
 
+  // Strings
+  if (c == '"') {
+    lexString();
+    return;
+  }
+
 }
 
 void
@@ -141,6 +147,29 @@ Lexer::lexComment()
   // them in one place in the lexer.
   while (!isEof(next) && next != '\n') {
     sourceCode_.get();
+  }
+}
+
+void
+Lexer::lexString()
+{
+  assert(("should only be called when '\"' has been lexed", currentLex_ == "\""));
+
+  int next = sourceCode_.peek();
+  while (!isEof(next) && next != '"') {
+    currentLex_.push_back(next);
+  }
+  assert(isEof(next) || next == '"');
+
+  if (isEof(next)) {
+    throw std::runtime_error("Unterminated string at end of file!");
+  } else {
+    assert(sourceCode_.get() == '"');
+
+    // Make the token. It currently starts with a '"'; we
+    // don't want that in the input so we have to remove it.
+    currentLex_.erase(currentLex_.begin());
+    addToken(Token::Type::STR, true);
   }
 }
 

@@ -48,6 +48,7 @@ private:
   void addToken(Token::Type tokenType, bool includeContents);
   bool match(char d);
   void lexComment();
+  void lexString();
 
 };
 
