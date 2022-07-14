@@ -83,7 +83,10 @@ Lexer::lex(char c)
 
   // Single- or multi-character tokens.
   switch (c) {
-    // TODO: lex these
+    case '!': addToken(match('=') ? Token::Type::BANG_EQ : Token::Type::BANG, false); return;
+    case '=': addToken(match('=') ? Token::Type::EQ_EQ : Token::Type::EQ, false); return;
+    case '<': addToken(match("=") ? Token::Type::LT_EQ : Token::Type::LT, false); return;
+    case '>': addToken(match('=') ? Token::Type::GT_EQ : Token::Type::GT, false); return;
   }
 
 }
