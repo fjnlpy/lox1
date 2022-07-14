@@ -50,7 +50,7 @@ Lexer::lex(const std::string &sourceCode)
     throw std::runtime_error("Unable to read from source code input stream.");
   }
 
-  addToken(Token::Type::EOFF, false);
+  addToken(Token::Type::EOFF);
   // TODO: I think move is correct here because tokens_ isn't a local var -- check effective cpp book.
   return std::move(tokens_);
 }
@@ -69,30 +69,30 @@ Lexer::lex(char c)
 
   // Single-character tokens.
   switch (c) {
-    case '(': addToken(Token::Type::LPEREN, false); return;
-    case ')': addToken(Token::Type::RPEREN, false); return;
-    case '{': addToken(Token::Type::LBRACE, false); return;
-    case '}': addToken(Token::Type::RBRACE, false); return;
-    case ',': addToken(Token::Type::COMMA, false); return;
-    case '.': addToken(Token::Type::DOT, false); return;
-    case '-': addToken(Token::Type::MINUS, false); return;
-    case '+': addToken(Token::Type::PLUS, false); return;
-    case ';': addToken(Token::Type::SEMICOLON, false); return;
-    case '*': addToken(Token::Type::STAR, false); return;
+    case '(': addToken(Token::Type::LPEREN); return;
+    case ')': addToken(Token::Type::RPEREN); return;
+    case '{': addToken(Token::Type::LBRACE); return;
+    case '}': addToken(Token::Type::RBRACE); return;
+    case ',': addToken(Token::Type::COMMA); return;
+    case '.': addToken(Token::Type::DOT); return;
+    case '-': addToken(Token::Type::MINUS); return;
+    case '+': addToken(Token::Type::PLUS); return;
+    case ';': addToken(Token::Type::SEMICOLON); return;
+    case '*': addToken(Token::Type::STAR); return;
   }
 
   // Single- or multi-character tokens.
   switch (c) {
-    case '!': addToken(match('=') ? Token::Type::BANG_EQ : Token::Type::BANG, false); return;
-    case '=': addToken(match('=') ? Token::Type::EQ_EQ : Token::Type::EQ, false); return;
-    case '<': addToken(match("=") ? Token::Type::LT_EQ : Token::Type::LT, false); return;
-    case '>': addToken(match('=') ? Token::Type::GT_EQ : Token::Type::GT, false); return;
+    case '!': addToken(match('=') ? Token::Type::BANG_EQ : Token::Type::BANG); return;
+    case '=': addToken(match('=') ? Token::Type::EQ_EQ : Token::Type::EQ); return;
+    case '<': addToken(match('=') ? Token::Type::LT_EQ : Token::Type::LT); return;
+    case '>': addToken(match('=') ? Token::Type::GT_EQ : Token::Type::GT); return;
   }
 
 }
 
 void
-Lexer::addToken(Token::Type tokenType, bool includeContents)
+Lexer::addToken(Token::Type tokenType, bool includeContents = false)
 {
   // TODO: should you always use emplace instead of move?
   tokens_.push_back(Token(tokenType, currentLine_, includeContents ? std::move(currentLex_) : ""));
