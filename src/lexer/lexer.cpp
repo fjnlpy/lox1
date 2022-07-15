@@ -162,9 +162,13 @@ Lexer::lexString()
 {
   assert(("should only be called when '\"' has been lexed", currentLex_ == "\""));
 
-  int next = sourceCode_.peek();
-  while (!isEof(next) && next != '"') {
-    currentLex_.push_back(next);
+  int next;
+  for (
+    next = sourceCode_.peek();
+    !isEof(next) && next != '"';
+    next = sourceCode_.peek()
+  ) {
+    currentLex_.push_back(sourceCode_.get());
   }
   assert(isEof(next) || next == '"');
 
