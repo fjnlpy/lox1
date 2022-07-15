@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 
+#include "utils/error.hpp"
+
 namespace lexer {
 
 class Token {
@@ -43,6 +45,7 @@ private:
   std::vector<Token> tokens_;
   unsigned currentLine_ = 1;
   std::string currentLex_;
+  std::vector<CompileError> errors_;
 
   void lex(char c);
   void addToken(Token::Type tokenType, bool includeContents);

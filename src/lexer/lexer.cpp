@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <cassert>
 
+#include "utils/error.hpp"
+
 namespace {
 
 bool
@@ -41,6 +43,7 @@ Lexer::lex(const std::string &sourceCode)
   tokens_.clear();
   currentLine_ = 1;
   currentLex_.clear();
+  errors_.clear();
 
   while (sourceCode_) {
     char c;
@@ -51,9 +54,13 @@ Lexer::lex(const std::string &sourceCode)
 
   if (!sourceCode_.eof()) {
     // Must have had an error with the stream. Can't do any more lexing, so fail.
-     // TODO: more info?
-     // TODO: have a utils::compiler_error instead?
     throw std::runtime_error("Unable to read from source code input stream.");
+  }
+
+  if (!errors_.empty()) {
+    // Found one or more compilation errors. Fail with syntax error information
+    // for each error we encountered.
+    throw ErrorCollection(std::move(errors_));
   }
 
   addToken(Token::Type::EOFF);
@@ -162,7 +169,17 @@ Lexer::lexString()
   assert(isEof(next) || next == '"');
 
   if (isEof(next)) {
-    throw std::runtime_error("Unterminated string at end of file!");
+    // Note down this error and let the lexing continue. It will
+    // fail straight away and report the error along with any others
+    // from earlier.
+    errors_.push_back(
+      CompileError(
+        currentLine_,
+        "Lexer",
+        "Unterminated string at end of file",
+        currentLex_
+      )
+    );
   } else {
     assert(sourceCode_.get() == '"');
 
