@@ -27,10 +27,14 @@ public:
 
   Token(Type tokenType, unsigned lineNunber, std::string contents);
 
+  Type getType() const;
+  const std::string &getContents() const;
+  unsigned getLineNumber() const;
+
 private:
-  Type tokenType_;
-  std::string contents_;
-  unsigned lineNumber_;
+  const Type type_;
+  const std::string contents_;
+  const unsigned lineNumber_;
 
 };
 
@@ -49,7 +53,7 @@ private:
   std::vector<CompileError> errors_;
 
   void lex(char c);
-  void addToken(Token::Type tokenType, bool includeContents);
+  void addToken(Token::Type tokenType, bool includeContents = false);
   bool match(char d);
   bool match(const std::function<bool(char)> &predicate);
   int peekNext();

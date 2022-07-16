@@ -33,10 +33,28 @@ namespace lexer {
 /// Token
 
 Token::Token(Type tokenType, unsigned lineNumber, std::string contents)
-  : tokenType_(tokenType)
+  : type_(tokenType)
   , contents_(std::move(contents))
   , lineNumber_(lineNumber)
   { }
+
+const std::string &
+Token::getContents() const
+{
+  return contents_;
+}
+
+Token::Type
+Token::getType() const
+{
+  return type_;
+}
+
+unsigned
+Token::getLineNumber() const
+{
+  return lineNumber_;
+}
 
 /// Lexer
 
@@ -127,10 +145,14 @@ Lexer::lex(char c)
     lexNumber();
     return;
   }
+
+  // Identifiers and reserved words
+
+
 }
 
 void
-Lexer::addToken(Token::Type tokenType, bool includeContents = false)
+Lexer::addToken(Token::Type tokenType, bool includeContents)
 {
   // TODO: should you always use emplace instead of move?
   tokens_.push_back(Token(tokenType, currentLine_, includeContents ? std::move(currentLex_) : ""));
@@ -140,7 +162,7 @@ Lexer::addToken(Token::Type tokenType, bool includeContents = false)
 bool
 Lexer::match(char d)
 {
-  assert(("Trying to match newline, which won't increment line counter", d != '\n'));
+  assert(d != '\n' && "Trying to match newline, which won't increment line counter");
   return match(
     [d](char c) { return c == d; }
   );
@@ -183,7 +205,7 @@ Lexer::peekNext()
 void
 Lexer::lexComment()
 {
-  assert(("Should only be called when '//' of comment has been lexed", currentLex_ == "//"));
+  assert(currentLex_ == "//" && "Should only be called when '//' of comment has been lexed");
 
   int next = sourceCode_.peek();
   // Keep discarding characters until the line ends.
@@ -197,7 +219,7 @@ Lexer::lexComment()
 void
 Lexer::lexString()
 {
-  assert(("should only be called when '\"' has been lexed", currentLex_ == "\""));
+  assert(currentLex_ == "\"" && "should only be called when '\"' has been lexed");
 
   int next;
   for (

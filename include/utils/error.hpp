@@ -52,7 +52,7 @@ public:
   ErrorCollection(std::vector<CompileError> errors)
     : errors_(std::move(errors))
   {
-    assert(("Expecting at least one error in the collection", !errors_.empty()));
+    assert(!errors_.empty() && "Expecting at least one error in the collection");
   }
 
   std::string
