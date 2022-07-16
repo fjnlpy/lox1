@@ -150,6 +150,24 @@ Lexer::match(const std::function<bool(char)> &predicate)
   }
 }
 
+int
+Lexer::peekNext()
+{
+  // We need a lookahead of two for lexing numbers but c++'s streams don't
+  // have that functionality. Instead, read two characters from the stream and
+  // put them back afterwards.
+  const int c1 = sourceCode_.peek();
+  if (isEof(c1)) {
+    return c1;
+  }
+
+  assert(sourceCode_.get() == c1); // progress the stream
+  const int c2 = sourceCode_.peek();
+  sourceCode_.unget();
+  return c2;
+
+}
+
 void
 Lexer::lexComment()
 {

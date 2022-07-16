@@ -52,6 +52,7 @@ private:
   void addToken(Token::Type tokenType, bool includeContents);
   bool match(char d);
   bool match(const std::function<bool(char)> &predicate);
+  int peekNext();
   void lexComment();
   void lexString();
 
