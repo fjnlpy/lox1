@@ -271,6 +271,8 @@ Lexer::lexNumber()
   while (match(isNumber)) {
     // Keep collecting the numbers.
   }
+
+  addToken(Token::Type::NUM, true);
 }
 
 }
