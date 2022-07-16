@@ -19,6 +19,13 @@ isEof(int peekResult)
 {
   return peekResult == std::char_traits<char>::eof();
 }
+
+bool
+isNumber(char c)
+{
+  return c >= '0' && c <= '9';
+}
+
 }
 
 namespace lexer {
@@ -115,6 +122,11 @@ Lexer::lex(char c)
     return;
   }
 
+  // Numbers: we allow integers and decimals, but no leading or trailing decimal points.
+  if (isNumber(c)) {
+    lexNumber();
+    return;
+  }
 }
 
 void
@@ -216,6 +228,26 @@ Lexer::lexString()
     // don't want that in the input so we have to remove it.
     currentLex_.erase(currentLex_.begin());
     addToken(Token::Type::STR, true);
+  }
+}
+
+void
+Lexer::lexNumber()
+{
+  while (match(isNumber)) {
+    // Keep collecting the numbers.
+  }
+
+  // We support decimal points but only if they're followed by more numbers.
+  // e.g. 2.3 is allowed but 2. is not.
+  if (!(sourceCode_.peek() == '.' && isNumber(peekNext()))) {
+    // No decimal part.
+    return;
+  }
+
+  sourceCode_.get(); // take the decimal point
+  while (match(isNumber)) {
+    // Keep collecting the numbers.
   }
 }
 

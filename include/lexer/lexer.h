@@ -55,6 +55,7 @@ private:
   int peekNext();
   void lexComment();
   void lexString();
+  void lexNumber();
 
 };
 
