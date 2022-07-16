@@ -129,12 +129,19 @@ bool
 Lexer::match(char d)
 {
   assert(("Trying to match newline, which won't increment line counter", d != '\n'));
+  return match(
+    [d](char c) { return c == d; }
+  );
+}
+
+bool
+Lexer::match(const std::function<bool(char)> &predicate)
+{
   char c2 = sourceCode_.peek();
   if (isEof(c2)) {
     return false;
-  } else if (c2 == d) {
-    // We know this is the same as c2, but extract it
-    // from the stream so we don't see it again.
+  } else if (predicate(c2)) {
+    // Extract c2 so it is consumed from the stream.
     sourceCode_.get();
     return true;
   } else {

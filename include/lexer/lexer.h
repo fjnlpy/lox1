@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <functional>
 
 #include "utils/error.hpp"
 
@@ -50,6 +51,7 @@ private:
   void lex(char c);
   void addToken(Token::Type tokenType, bool includeContents);
   bool match(char d);
+  bool match(const std::function<bool(char)> &predicate);
   void lexComment();
   void lexString();
 
