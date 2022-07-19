@@ -1,34 +1,38 @@
 #!/usr/bin/env bash
 
-# Invoke from repo root.
+# Invoke me from repo root!
 
 clean=
 run=
+test=
 
-if (( $# > 0)); then
-  case "$1" in
-    "cr" | "rc")
-      clean="true"
-      run="true"
-    ;;
-
-    "r")
-      run="true"
-    ;;
-
-    "c")
-      clean="true"
-    ;;
+while getopts "crt" opt; do
+  case "$opt" in
+    c)  clean="true"
+      ;;
+    r)  run="true"
+      ;;
+    t)  test="true"
+      ;;
   esac
-fi
-
-[[ "$clean" == "true" ]] && rm -r build
+done
 
 mkdir -p build &&
 cd build &&
-CXX=/usr/bin/clang++ cmake ../ &&
-make &&
+CXX=/usr/bin/clang++ cmake ../ || exit -1
+
+make_flags=""
+[[ "$clean" == "true" ]] && make_flags+=" clean "
+make_flags+=" Lox1 "
+[[ "$run" == "true" ]] && make_flags+=" main "
+[[ "$test" == "true" ]] && make_flags+=" tests "
+make $make_flags || exit -1
+
+[[ "$test" == "true" ]] && ./tests
+
 [[ "$run" == "true" ]] &&
+echo "" &&
+echo "=== RUNNING MAIN ===" &&
 cd ../ && # Make relative paths match initial working dir.
 shift &&
-./build/Lox1 "$@"
+./build/main "$@"
