@@ -60,6 +60,7 @@ private:
   void lexComment();
   void lexString();
   void lexNumber();
+  void lexIdentifierOrReservedWord();
 
 };
 

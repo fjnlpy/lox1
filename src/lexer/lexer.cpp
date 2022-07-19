@@ -3,6 +3,7 @@
 #include <utility>
 #include <stdexcept>
 #include <cassert>
+#include <unordered_map>
 
 #include "utils/error.hpp"
 
@@ -24,6 +25,12 @@ bool
 isNumber(char c)
 {
   return c >= '0' && c <= '9';
+}
+
+bool
+isIdentifierChar(char c)
+{
+  return c == '_' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
 }
@@ -147,8 +154,10 @@ Lexer::lex(char c)
   }
 
   // Identifiers and reserved words
-
-
+  if (isIdentifierChar(c)) {
+    lexIdentifierOrReservedWord();
+    return;
+  }
 }
 
 void
@@ -273,6 +282,43 @@ Lexer::lexNumber()
   }
 
   addToken(Token::Type::NUM, true);
+}
+
+void
+Lexer::lexIdentifierOrReservedWord()
+{
+  // We have already consumed the first character. Subsequent ones can either be indentifier
+  // characters or numbers.
+  while (match([](char c) { return isIdentifierChar(c) || isNumber(c); })) {
+    // Keep consuming.
+  }
+
+  // We have consumed the entire identifier. Check if it's a reserved word.
+  static const std::unordered_map<const char *, Token::Type> reservedWordMap {
+    { "for", Token::Type::FOR },
+    { "if", Token::Type::IF },
+    { "and", Token::Type::AND },
+    { "class", Token::Type::CLASS },
+    { "else", Token::Type::ELSE },
+    { "false", Token::Type::FALSE },
+    { "fun", Token::Type::FUN },
+    { "nil", Token::Type::NIL },
+    { "or", Token::Type::OR },
+    { "print", Token::Type::PRINT },
+    { "return", Token::Type::RETURN },
+    { "super", Token::Type::SUPER },
+    { "this", Token::Type::THIS },
+    { "true", Token::Type::TRUE },
+    { "var", Token::Type::VAR },
+    { "while", Token::Type::WHILE },
+  };
+
+  const auto reservedWordTokenIt = reservedWordMap.find(currentLex_.c_str());
+  if (reservedWordTokenIt == reservedWordMap.cend()) {
+    addToken(Token::Type::ID, true);
+  } else {
+    addToken(reservedWordTokenIt->second, false);
+  }
 }
 
 }
