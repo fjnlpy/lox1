@@ -9,6 +9,8 @@
 
 namespace {
 
+constexpr auto ERROR_TAG = "Lexer";
+
 bool
 isWhitespace(char c)
 {
@@ -158,6 +160,10 @@ Lexer::lex(char c)
     lexIdentifierOrReservedWord();
     return;
   }
+
+  // Unrecognised character.
+  // TODO: better source snippet for this.
+  errors_.push_back(CompileError(currentLine_, ERROR_TAG, std::string("Unrecognized character: ") + c, ""));
 }
 
 void
@@ -247,7 +253,7 @@ Lexer::lexString()
     errors_.push_back(
       CompileError(
         currentLine_,
-        "Lexer",
+        ERROR_TAG,
         "Unterminated string at end of file",
         currentLex_
       )
