@@ -79,9 +79,7 @@ Lexer::lex(const std::string &sourceCode)
   currentLex_.clear();
   errors_.clear();
 
-  while (sourceCode_) {
-    char c;
-    sourceCode_ >> c;
+  for (char c; sourceCode_ >> c; ) {
     currentLex_.push_back(c);
     lex(c);
   }
