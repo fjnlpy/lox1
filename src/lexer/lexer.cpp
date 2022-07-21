@@ -2,10 +2,10 @@
 
 #include <utility>
 #include <stdexcept>
-#include <cassert>
 #include <unordered_map>
 
 #include "utils/error.hpp"
+#include "utils/assert.hpp"
 
 namespace {
 
@@ -182,7 +182,7 @@ Lexer::addToken(Token::Type tokenType, bool includeContents)
 bool
 Lexer::match(char d)
 {
-  assert(d != '\n' && "Trying to match newline, which won't increment line counter");
+  ASSERT(d != '\n' && "Trying to match newline, which won't increment line counter");
   return match(
     [d](char c) { return c == d; }
   );
@@ -216,7 +216,8 @@ Lexer::peekNext()
   }
 
   const char c11 = sourceCode_.get(); // progress the stream
-  assert(c11 == c1);
+  ASSERT(c11 == c1);
+
   const int c2 = sourceCode_.peek();
   sourceCode_.unget();
   return c2;
@@ -226,7 +227,7 @@ Lexer::peekNext()
 void
 Lexer::lexComment()
 {
-  assert(currentLex_ == "//" && "Should only be called when '//' of comment has been lexed");
+  ASSERT(currentLex_ == "//" && "Should only be called when '//' of comment has been lexed");
 
   int next = sourceCode_.peek();
   // Keep discarding characters until the line ends.
@@ -240,7 +241,7 @@ Lexer::lexComment()
 void
 Lexer::lexString()
 {
-  assert(currentLex_ == "\"" && "should only be called when '\"' has been lexed");
+  ASSERT(currentLex_ == "\"" && "should only be called when '\"' has been lexed");
 
   int next;
   for (
@@ -250,7 +251,7 @@ Lexer::lexString()
   ) {
     currentLex_.push_back(sourceCode_.get());
   }
-  assert(isEof(next) || next == '"');
+  ASSERT(isEof(next) || next == '"');
 
   if (isEof(next)) {
     // Note down this error and let the lexing continue. It will
@@ -265,8 +266,8 @@ Lexer::lexString()
       )
     );
   } else {
-    const char c = sourceCode_.get() // consume the '"'
-    assert(c == '"');
+    const char c = sourceCode_.get(); // consume the '"'
+    ASSERT(c == '"');
 
     // Make the token. It currently starts with a '"'; we
     // don't want that in the input so we have to remove it.

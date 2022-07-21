@@ -5,7 +5,8 @@
 #include <utility>
 #include <sstream>
 #include <vector>
-#include <cassert>
+
+#include "utils/assert.hpp"
 
 class CompileError {
 public:
@@ -52,7 +53,7 @@ public:
   ErrorCollection(std::vector<CompileError> errors)
     : errors_(std::move(errors))
   {
-    assert(!errors_.empty() && "Expecting at least one error in the collection");
+    ASSERT(!errors_.empty() && "Expecting at least one error in the collection");
   }
 
   std::string
