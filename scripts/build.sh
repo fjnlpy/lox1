@@ -19,7 +19,7 @@ done
 
 mkdir -p build &&
 cd build &&
-CXX=/usr/bin/clang++ cmake ../ || exit -1
+CXX=/usr/bin/clang++ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -G"Unix Makefiles"   ../ || exit -1
 
 make_flags=""
 [[ "$clean" == "true" ]] && make_flags+=" clean "
