@@ -1,4 +1,5 @@
 build
 *.code-workspace
 .vscode
+Notes.md
 
