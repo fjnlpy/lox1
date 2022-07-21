@@ -161,7 +161,14 @@ Lexer::lex(char c)
 
   // Unrecognised character.
   // TODO: better source snippet for this.
-  errors_.push_back(CompileError(currentLine_, ERROR_TAG, std::string("Unrecognized character: ") + c, ""));
+  errors_.push_back(
+    CompileError(
+      currentLine_,
+      ERROR_TAG,
+      std::string("Unrecognized character: '") + c + "'; ASCII: " + std::to_string(static_cast<int>(c)),
+      ""
+    )
+  );
 }
 
 void
