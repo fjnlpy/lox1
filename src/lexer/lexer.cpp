@@ -215,7 +215,8 @@ Lexer::peekNext()
     return c1;
   }
 
-  assert(sourceCode_.get() == c1); // progress the stream
+  const char c11 = sourceCode_.get(); // progress the stream
+  assert(c11 == c1);
   const int c2 = sourceCode_.peek();
   sourceCode_.unget();
   return c2;
@@ -264,7 +265,8 @@ Lexer::lexString()
       )
     );
   } else {
-    assert(sourceCode_.get() == '"');
+    const char c = sourceCode_.get() // consume the '"'
+    assert(c == '"');
 
     // Make the token. It currently starts with a '"'; we
     // don't want that in the input so we have to remove it.
