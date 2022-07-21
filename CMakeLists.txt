@@ -26,9 +26,12 @@ target_compile_options(Lox1 PRIVATE -Wall -Wextra -Werror)
 # Discover googletest tests and make test binary.
 enable_testing()
 
+set(TEST_SOURCES  test/lexer/token_tests.cpp
+                  test/lexer/lexer_tests.cpp
+)
 add_executable(
   tests
-  test/dummy-test.cpp
+  ${TEST_SOURCES}
 )
 target_link_libraries(
   tests
