@@ -285,14 +285,11 @@ Lexer::lexNumber()
 
   // We support decimal points but only if they're followed by more numbers.
   // e.g. 2.3 is allowed but 2. is not.
-  if (!(sourceCode_.peek() == '.' && isNumber(peekNext()))) {
-    // No decimal part.
-    return;
-  }
-
-  sourceCode_.get(); // take the decimal point
-  while (match(isNumber)) {
-    // Keep collecting the numbers.
+  if (sourceCode_.peek() == '.' && isNumber(peekNext())) {
+    consume(); // take the decimal point
+    while (match(isNumber)) {
+      // Keep collecting the numbers.
+    }
   }
 
   addToken(Token::Type::NUM, true);
