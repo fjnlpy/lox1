@@ -305,7 +305,7 @@ Lexer::lexIdentifierOrReservedWord()
   }
 
   // We have consumed the entire identifier. Check if it's a reserved word.
-  static const std::unordered_map<const char *, Token::Type> reservedWordMap {
+  static const std::unordered_map<std::string, Token::Type> reservedWordMap {
     { "for", Token::Type::FOR },
     { "if", Token::Type::IF },
     { "and", Token::Type::AND },
