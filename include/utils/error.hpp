@@ -68,6 +68,12 @@ public:
     return stream.str();
   }
 
+  const std::vector<CompileError> &
+  errors() const
+  {
+    return errors_;
+  }
+
 private:
   const std::vector<CompileError> errors_;
 };

@@ -13,6 +13,18 @@ namespace {
 
 #define EXPECT_EOF(token) ASSERT_TRUE(token.size() > 0); EXPECT_TOKEN_TYPE(Token::Type::EOFF, (*(tokens.cend() - 1)))
 
+void
+expectSingleStringLex(const std::string &string)
+{
+  Lexer lexer;
+  const auto input = std::string("\"") + string + "\"";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(2, tokens.size());
+  //LOGD(tokens[0].getContents());
+  EXPECT_TOKEN_TYPE(Token::Type::STR, tokens[0]);
+  EXPECT_EQ(string, tokens[0].getContents());
+}
+
 }
 
 TEST(LexerTests, TestEmptyInput) {
@@ -104,6 +116,53 @@ super this var while
   EXPECT_EOF(tokens);
 }
 
+TEST(LexerTests, TestUnsupportedCharacter) {
+  Lexer lexer;
+  const auto input = "@&^#:hello~#";
+
+  try {
+    const auto tokens = lexer.lex(input);
+    FAIL() << "Expecting lexing to fail due to unrecognized characters.";
+  } catch (const ErrorCollection &e) {
+    ASSERT_EQ(7, e.errors().size());
+    //LOGD(e.what()); // for manual testing
+  }
+}
+
+TEST(LexerTests, TestEmptyString) {
+  const auto string = "";
+  expectSingleStringLex(string);
+}
+
+TEST(LexerTests, TestMultiLineString) {
+  const auto string = "hello\nhello\n";
+  expectSingleStringLex(string);
+}
+
+TEST(LexerTests, TestStringWithComment) {
+  expectSingleStringLex("hello//commentbutnotcomment//notcomment");
+}
+
+TEST(LexerTests, TestNonTerminatedString) {
+  Lexer lexer;
+  const auto input = "\"not terminated";
+  EXPECT_THROW(lexer.lex(input), ErrorCollection);
+}
+
+TEST(LexerTests, TestStringOfReservedThings) {
+  expectSingleStringLex("and or super + - -+ <= 12345");
+}
+
+TEST(LexerTests, TestAdjacentStrings) {
+  Lexer lexer;
+  const auto input = "\"s1\"\"s2\"";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(3, tokens.size());
+  EXPECT_EQ("s1", tokens[0].getContents());
+  EXPECT_EQ("s2", tokens[1].getContents());
+  EXPECT_EOF(tokens);
+}
+
 TEST(LexerTests, TestLexNumber) {
   Lexer lexer;
   const auto input = "11";
@@ -115,9 +174,6 @@ TEST(LexerTests, TestLexNumber) {
 }
 
 /* TODO:
-    - lex everything once
-    - unsupported characters (try putting ident after)
-    - string stuff (and contents!)
     - number stuff (and contents!)
     - comments stuff
     - single tokens next to their multi token brothers
