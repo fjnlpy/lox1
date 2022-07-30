@@ -11,6 +11,8 @@ namespace {
 
 #define EXPECT_TOKEN_TYPE(expectedType, token) EXPECT_EQ(expectedType, token.getType())
 
+#define EXPECT_EOF(token) ASSERT_TRUE(token.size() > 0); EXPECT_TOKEN_TYPE(Token::Type::EOFF, (*(tokens.cend() - 1)))
+
 }
 
 TEST(LexerTests, TestEmptyInput) {
@@ -45,7 +47,7 @@ super this var while
     FAIL() << e.what();
   }
 
-  ASSERT_EQ(39, tokens.size()); //FIXME: should be 40?
+  ASSERT_EQ(40, tokens.size());
   EXPECT_TOKEN_TYPE(Token::Type::LPEREN, tokens[0]);
   EXPECT_TOKEN_TYPE(Token::Type::RPEREN, tokens[1]);
   EXPECT_TOKEN_TYPE(Token::Type::LBRACE, tokens[2]);
@@ -71,17 +73,45 @@ super this var while
   EXPECT_TOKEN_TYPE(Token::Type::LT_EQ, tokens[18]);
 
   EXPECT_TOKEN_TYPE(Token::Type::ID, tokens[19]);
+  EXPECT_EQ("abc", tokens[19].getContents());
+
   EXPECT_TOKEN_TYPE(Token::Type::STR, tokens[20]);
-
-
-  FAIL() << tokens[20].getContents() << "; " << tokens[21].getContents() << "; " << tokens[22].getContents();
+  EXPECT_EQ("I am str <><>", tokens[20].getContents());
 
   EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[21]);
+  EXPECT_EQ("22", tokens[21].getContents());
 
   EXPECT_TOKEN_TYPE(Token::Type::AND, tokens[22]);
   EXPECT_TOKEN_TYPE(Token::Type::CLASS, tokens[23]);
   EXPECT_TOKEN_TYPE(Token::Type::ELSE, tokens[24]);
+  EXPECT_TOKEN_TYPE(Token::Type::TRUE, tokens[25]);
+  EXPECT_TOKEN_TYPE(Token::Type::FALSE, tokens[26]);
+  EXPECT_TOKEN_TYPE(Token::Type::FUN, tokens[27]);
+  EXPECT_TOKEN_TYPE(Token::Type::FOR, tokens[28]);
+  EXPECT_TOKEN_TYPE(Token::Type::IF, tokens[29]);
+  EXPECT_TOKEN_TYPE(Token::Type::NIL, tokens[30]);
 
+  EXPECT_TOKEN_TYPE(Token::Type::OR, tokens[31]);
+  EXPECT_TOKEN_TYPE(Token::Type::PRINT, tokens[32]);
+  EXPECT_TOKEN_TYPE(Token::Type::RETURN, tokens[33]);
+  EXPECT_TOKEN_TYPE(Token::Type::SUPER, tokens[34]);
+  EXPECT_TOKEN_TYPE(Token::Type::THIS, tokens[35]);
+  EXPECT_TOKEN_TYPE(Token::Type::VAR, tokens[36]);
+  EXPECT_TOKEN_TYPE(Token::Type::WHILE, tokens[37]);
+
+  EXPECT_TOKEN_TYPE(Token::Type::DOT, tokens[38]);
+
+  EXPECT_EOF(tokens);
+}
+
+TEST(LexerTests, TestLexNumber) {
+  Lexer lexer;
+  const auto input = "11";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(2, tokens.size());
+  EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[0]);
+  EXPECT_EQ("11", tokens[0].getContents());
+  EXPECT_EOF(tokens);
 }
 
 /* TODO:
