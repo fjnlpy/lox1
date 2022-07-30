@@ -61,6 +61,7 @@ private:
   void lexString();
   void lexNumber();
   void lexIdentifierOrReservedWord();
+  void consume();
 
 };
 

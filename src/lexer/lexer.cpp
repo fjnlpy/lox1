@@ -196,7 +196,7 @@ Lexer::match(const std::function<bool(char)> &predicate)
     return false;
   } else if (predicate(c2)) {
     // Extract c2 so it is consumed from the stream.
-    sourceCode_.get();
+    consume();
     return true;
   } else {
     // If the character doesn't match, the stream is unchanged.
@@ -249,7 +249,7 @@ Lexer::lexString()
     !isEof(next) && next != '"';
     next = sourceCode_.peek()
   ) {
-    currentLex_.push_back(sourceCode_.get());
+    consume();
   }
   ASSERT(isEof(next) || next == '"');
 
@@ -266,7 +266,7 @@ Lexer::lexString()
       )
     );
   } else {
-    const char c = sourceCode_.get(); // consume the '"'
+    const char c = sourceCode_.get(); // discard the '"'
     ASSERT(c == '"');
 
     // Make the token. It currently starts with a '"'; we
@@ -330,6 +330,12 @@ Lexer::lexIdentifierOrReservedWord()
   } else {
     addToken(reservedWordTokenIt->second, false);
   }
+}
+
+void
+Lexer::consume()
+{
+  currentLex_.push_back(sourceCode_.get());
 }
 
 }
