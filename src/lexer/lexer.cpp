@@ -233,13 +233,18 @@ Lexer::lexComment()
 {
   ASSERT(currentLex_ == "//" && "Should only be called when '//' of comment has been lexed");
 
-  int next = sourceCode_.peek();
   // Keep discarding characters until the line ends.
   // Don't grab newlines because we only want to handle
   // them in one place in the lexer.
-  while (!isEof(next) && next != '\n') {
-    sourceCode_.get();
+  for ( int next = sourceCode_.peek();
+        !isEof(next) && next != '\n';
+        next = sourceCode_.peek()
+  ) {
+    sourceCode_.get(); // don't add to current lex since we don't want to keep it
   }
+
+  // Discard all the characters in the comment. They are not useful to the compiler.
+  currentLex_.clear();
 }
 
 void
