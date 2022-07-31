@@ -79,7 +79,10 @@ Lexer::lex(const std::string &sourceCode)
   currentLex_.clear();
   errors_.clear();
 
-  for (char c; sourceCode_ >> c; ) {
+  // Extract using `get` instead of streaming, because the format is for "unformatted"
+  // extraction e.g. doesn't strip whitespace (we don't want that because we're going
+  // to do it ourselves).
+  for (char c; sourceCode_.get(c); ) {
     currentLex_.push_back(c);
     lex(c);
   }
