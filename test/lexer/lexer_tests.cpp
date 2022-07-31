@@ -23,6 +23,18 @@ expectSingleStringLex(const std::string &string)
   //LOGD(tokens[0].getContents());
   EXPECT_TOKEN_TYPE(Token::Type::STR, tokens[0]);
   EXPECT_EQ(string, tokens[0].getContents());
+  EXPECT_EOF(tokens);
+}
+
+void
+expectSingleNumberLex(const std::string &number)
+{
+  Lexer lexer;
+  const auto tokens = lexer.lex(number);
+  ASSERT_EQ(2, tokens.size());
+  EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[0]);
+  EXPECT_EQ(number, tokens[0].getContents());
+  EXPECT_EOF(tokens);
 }
 
 }
@@ -163,14 +175,12 @@ TEST(LexerTests, TestAdjacentStrings) {
   EXPECT_EOF(tokens);
 }
 
-TEST(LexerTests, TestLexNumber) {
-  Lexer lexer;
-  const auto input = "11";
-  const auto tokens = lexer.lex(input);
-  ASSERT_EQ(2, tokens.size());
-  EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[0]);
-  EXPECT_EQ("11", tokens[0].getContents());
-  EXPECT_EOF(tokens);
+TEST(LexerTests, TestLexWholeNumber) {
+  expectSingleNumberLex("11");
+}
+
+TEST(LexerTests, TestLexDecimalNumber) {
+  expectSingleNumberLex("2.25");
 }
 
 /* TODO:
