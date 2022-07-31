@@ -112,6 +112,7 @@ Lexer::lex(char c)
       ++currentLine_;
     }
     // Ignore it.
+    currentLex_.clear();
     return;
   }
 
