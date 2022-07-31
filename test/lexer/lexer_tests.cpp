@@ -183,9 +183,36 @@ TEST(LexerTests, TestLexDecimalNumber) {
   expectSingleNumberLex("2.25");
 }
 
+TEST(LexerTests, TestLexComment) {
+  Lexer lexer;
+  const auto input = "// I am a comment";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(1, tokens.size());
+  EXPECT_EOF(tokens);
+  ASSERT_EQ(1, tokens[0].getLineNumber());
+}
+
+TEST(LexerTests, TestLexCommentAndEndOfLine) {
+  Lexer lexer;
+  const auto input = "// I am a comment\n";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(1, tokens.size());
+  EXPECT_EOF(tokens);
+  ASSERT_EQ(2, tokens[0].getLineNumber())
+    << "Due to newline, EOF should be on second line";
+}
+
+TEST(LexerTests, TestLexCommentWithManySlashes) {
+  Lexer lexer;
+  const auto input = "/// I // am / a comment //";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(1, tokens.size());
+  EXPECT_EOF(tokens);
+  ASSERT_EQ(1, tokens[0].getLineNumber());
+}
+
 /* TODO:
-    - number stuff (and contents!)
-    - comments stuff
     - single tokens next to their multi token brothers
     - identifier and reserved word stuff (and contents!)
+    - line counting and whitespace
 */
