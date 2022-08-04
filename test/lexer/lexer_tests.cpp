@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <optional>
 
 #include "lexer/lexer.h"
 #include "utils/logging.hpp"
@@ -35,6 +36,17 @@ expectSingleNumberLex(const std::string &number)
   EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[0]);
   EXPECT_EQ(number, tokens[0].getContents());
   EXPECT_EOF(tokens);
+}
+
+template <class T> // totally unnecessary :)
+void
+expectIdentifierToken(const Token &token, T &&contents, std::optional<unsigned> lineNumber = std::nullopt)
+{
+  EXPECT_EQ(Token::Type::ID, token.getType());
+  EXPECT_EQ(std::forward<T>(contents), token.getContents());
+  if (lineNumber) {
+    EXPECT_EQ(*lineNumber, token.getLineNumber());
+  }
 }
 
 }
@@ -211,8 +223,63 @@ TEST(LexerTests, TestLexCommentWithManySlashes) {
   ASSERT_EQ(1, tokens[0].getLineNumber());
 }
 
-/* TODO:
-    - single tokens next to their multi token brothers
-    - identifier and reserved word stuff (and contents!)
-    - line counting and whitespace
-*/
+TEST(LexerTests, TextSingleAndMultiCharTokens) {
+  Lexer lexer;
+  const auto input = "!!===!<==>=/ /";
+  const auto tokens = lexer.lex(input);
+  ASSERT_EQ(10, tokens.size());
+
+  EXPECT_TOKEN_TYPE(Token::Type::BANG, tokens[0]);
+  EXPECT_TOKEN_TYPE(Token::Type::BANG_EQ, tokens[1]);
+  EXPECT_TOKEN_TYPE(Token::Type::EQ_EQ, tokens[2]);
+  EXPECT_TOKEN_TYPE(Token::Type::BANG, tokens[3]);
+  EXPECT_TOKEN_TYPE(Token::Type::LT_EQ, tokens[4]);
+  EXPECT_TOKEN_TYPE(Token::Type::EQ, tokens[5]);
+  EXPECT_TOKEN_TYPE(Token::Type::GT_EQ, tokens[6]);
+  EXPECT_TOKEN_TYPE(Token::Type::SLASH, tokens[7]);
+  EXPECT_TOKEN_TYPE(Token::Type::SLASH, tokens[8]);
+
+  EXPECT_EOF(tokens);
+}
+
+TEST(LexerTests, TestIdentifiers) {
+  Lexer lexer;
+  const auto input = "abc abc123 123abc _1212 _a_b_c a1a";
+  const auto tokens = lexer.lex(input);
+
+  expectIdentifierToken(tokens[0], "abc");
+  expectIdentifierToken(tokens[1], "abc123");
+  EXPECT_TOKEN_TYPE(Token::Type::NUM, tokens[2]);
+  expectIdentifierToken(tokens[3], "abc");
+  expectIdentifierToken(tokens[4], "_1212");
+  expectIdentifierToken(tokens[5], "_a_b_c");
+  expectIdentifierToken(tokens[6], "a1a");
+
+  EXPECT_EOF(tokens);
+}
+
+TEST(LexerTests, TestIdentAndReservedWord) {
+  Lexer lexer;
+  const auto input = "formula andrew footprints foot print";
+  const auto tokens = lexer.lex(input);
+
+  expectIdentifierToken(tokens[0], "formula");
+  expectIdentifierToken(tokens[1], "andrew");
+  expectIdentifierToken(tokens[2], "footprints");
+  expectIdentifierToken(tokens[3], "foot");
+  EXPECT_TOKEN_TYPE(Token::Type::PRINT, tokens[4]);
+
+  EXPECT_EOF(tokens);
+}
+
+TEST(LexerTests, TestLineNumbers) {
+  Lexer lexer;
+  const auto input = "abc\ndef ghi\n\njkl";
+  const auto tokens = lexer.lex(input);
+
+  expectIdentifierToken(tokens[0], "abc", 1);
+  expectIdentifierToken(tokens[1], "def", 2);
+  expectIdentifierToken(tokens[3], "jkl", 4);
+
+  EXPECT_EOF(tokens);
+}
