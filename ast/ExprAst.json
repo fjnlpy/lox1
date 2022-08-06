@@ -1,0 +1,22 @@
+{
+  "baseClass"  : "Expr",
+  "subClasses" : {
+    "BinOp" : {
+      "fields" : [ "Expr lhs", "Op operation", "Expr rhs" ],
+      "enumDefinition" : "enum class Op { Mult, Div, Add, Sub, GtEq, Gt, LtEq, Lt, Eq, Neq };"
+    },
+    "UnaryOp" : {
+      "fields" : [ "Op operation", "Expr child" ],
+      "enumDefinition" : "enum class Op { Negate, Not };"
+    },
+    "StringLiteral" : {
+      "fields" : [ "std::string value" ]
+    },
+    "NumLiteral" : {
+      "fields" : [ "double value" ]
+    },
+    "Grouping" : {
+      "fields" : [ "Expr child" ]
+    }
+  }
+}
