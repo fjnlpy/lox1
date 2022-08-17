@@ -19,8 +19,9 @@ def emit(classes, output_dir):
     includes_snippet = make_includes_snippet()
     visitor_snippet = make_visitor_snippet(subclass_names)
     base_snippet = make_base_class_snippet(base_class)
+    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items(), base_class)
 
-    full_class = "".join([includes_snippet, visitor_snippet, base_snippet]) + "\n"
+    full_class = "".join([includes_snippet, visitor_snippet, base_snippet, subclasses_snippet]) + "\n"
 
     with open(output_file, "x") as writer:
       writer.write(full_class)
@@ -55,6 +56,17 @@ struct {base_class_name} {{
   virtual template <class T> T accept(Visitor &visitor) =0;
 }};
 """
+
+def make_subclasses_snippet(subclasses, base_class_name):
+  snippets = []
+
+  for c, o in subclasses:
+    top = f"struct {c} : public {base_class_name} final {{\n"
+    enum_definition = o.get("enumDefinition") # might be None
+    fields = "\n".join(map(lambda f: f"  {f};", o["fields"]))
+    snippets.append(top + (f"  {enum_definition}\n" if enum_definition else "") + fields + "\n};\n")
+
+  return "\n" + "\n".join(snippets)
 
 def to_camel_case(pascal_case_word):
   if len(pascal_case_word) > 0 and pascal_case_word[0].isupper():
