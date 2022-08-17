@@ -50,9 +50,9 @@ public:
 def make_base_class_snippet(base_class_name):
   return f"""
 struct {base_class_name} {{
-  template <class T>
-  T
-  accept()
+  virtual ~{base_class_name}() =default;
+
+  virtual template <class T> T accept(Visitor &visitor) =0;
 }};
 """
 
