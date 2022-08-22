@@ -17,11 +17,16 @@ def emit(classes, output_dir):
     assert not output_file.exists(), f"Output file already exists: {output_file}"
 
     includes_snippet = make_includes_snippet()
-    visitor_snippet = make_visitor_snippet(subclass_names)
-    base_snippet = make_base_class_snippet(base_class)
-    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items(), base_class)
+    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
+    variant_snippet = make_variant_snippet(base_class, subclass_names)
+    visitor_snippet = make_visitor_snippet(base_class, subclass_names)
 
-    full_class = "".join([includes_snippet, visitor_snippet, base_snippet, subclasses_snippet]) + "\n"
+    full_class = (
+      includes_snippet + "\n" +
+      "namespace ast {\n" +
+      "".join([subclasses_snippet, variant_snippet, visitor_snippet]) +
+      "}\n"
+    )
 
     with open(output_file, "x") as writer:
       writer.write(full_class)
@@ -30,11 +35,13 @@ def make_includes_snippet():
   # We have a known set of includes
   return """
 #include <string>
+#include <variant>
 """
 
-def make_visitor_snippet(subclass_names):
+def make_visitor_snippet(base_class, subclass_names):
+  camel_base_class = to_camel_case(base_class)
+
   top = f"""
-template <class T>
 class Visitor {{
 public:
   virtual ~Visitor() =default;
@@ -43,28 +50,38 @@ public:
 
   subclass_methods = []
   for c in subclass_names:
-    subclass_methods.append(f"  virtual T visit{c}(const {c} &{to_camel_case(c)}) =0;")
-    subclass_methods.append(f"  virtual T visit{c}({c} &{to_camel_case(c)}) =0;\n")
+    camel_c = to_camel_case(c)
+    subclass_methods.append(f"  virtual void visit{c}({c} &{camel_c}) =0;")
+    subclass_methods.append(f"  void operator()({c} &{camel_c}) {{ visit{c}({camel_c}); }}\n")
 
-  return top + "\n".join(subclass_methods) + "\n};\n"
-
-def make_base_class_snippet(base_class_name):
-  return f"""
-struct {base_class_name} {{
-  virtual ~{base_class_name}() =default;
-
-  virtual template <class T> T accept(Visitor &visitor) =0;
-}};
+  visit_method = f"""
+  void
+  visit({base_class} &{camel_base_class})
+  {{
+    std::visit(*this, {camel_base_class});
+  }}
 """
 
-def make_subclasses_snippet(subclasses, base_class_name):
+  return top + "\n".join(subclass_methods) + visit_method + "\n};\n"
+
+def make_variant_snippet(base_class, subclasses):
+  return f"""
+using {base_class} = std::variant<{", ".join(subclasses)}>;
+"""
+
+def make_subclasses_snippet(subclasses):
   snippets = []
 
   for c, o in subclasses:
-    top = f"struct {c} : public {base_class_name} final {{\n"
+    top = f"struct {c} {{\n"
     enum_definition = o.get("enumDefinition") # might be None
     fields = "\n".join(map(lambda f: f"  {f};", o["fields"]))
-    snippets.append(top + (f"  {enum_definition}\n" if enum_definition else "") + fields + "\n};\n")
+    snippets.append(
+      top +
+      (f"  {enum_definition}\n" if enum_definition else "") +
+      fields +
+      "\n};\n"
+    )
 
   return "\n" + "\n".join(snippets)
 
