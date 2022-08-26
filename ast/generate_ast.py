@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# run in the `ast` directory:
+#   rm -f Expr.hpp && ./generate_ast.py ExprAst.json . && less Expr.hpp
+
 from sys import argv
 import json
 from pathlib import Path
