@@ -46,7 +46,7 @@ def make_visitor_snippet(base_class, subclass_names):
 
   top = f"""
 class Visitor {{
-public:
+protected:
   virtual ~Visitor() =default;
 
 """
