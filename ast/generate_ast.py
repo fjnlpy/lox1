@@ -19,15 +19,16 @@ def emit(classes, output_dir):
     output_file = output_dir / f"{base_class}.hpp"
     assert not output_file.exists(), f"Output file already exists: {output_file}"
 
+    forward_decls_snippet = make_forward_decls_snippet(subclass_names) # needed because variant refers to the subclasses
     includes_snippet = make_includes_snippet()
-    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     variant_snippet = make_variant_snippet(base_class, subclass_names)
+    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
 
     full_class = (
       includes_snippet + "\n" +
       "namespace ast {\n" +
-      "".join([subclasses_snippet, variant_snippet, visitor_snippet]) +
+      "".join([forward_decls_snippet, variant_snippet, subclasses_snippet, visitor_snippet]) +
       "}\n"
     )
 
@@ -71,6 +72,12 @@ def make_variant_snippet(base_class, subclasses):
   return f"""
 using {base_class} = std::variant<{", ".join(subclasses)}>;
 """
+
+def make_forward_decls_snippet(subclass_names):
+  comment_about_decls ="""
+// Forward declarations are needed because the superclass and subclasses mutually refer to each other.
+"""
+  return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
 
 def make_subclasses_snippet(subclasses):
   snippets = []
