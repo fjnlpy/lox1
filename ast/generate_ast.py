@@ -40,6 +40,7 @@ def make_includes_snippet():
   return """
 #include <string>
 #include <variant>
+#include <memory>
 """
 
 def make_visitor_snippet(base_class, subclass_names):
@@ -56,7 +57,7 @@ public:
   for c in subclass_names:
     camel_c = to_camel_case(c)
     subclass_methods.append(f"  virtual void visit{c}({c} &{camel_c}) =0;")
-    subclass_methods.append(f"  void operator()({c} &{camel_c}) {{ visit{c}({camel_c}); }}\n")
+    subclass_methods.append(f"  void operator()(std::unique_ptr<{c}> &{camel_c}) {{ visit{c}(*{camel_c}); }}\n")
 
   visit_method = f"""
   void
@@ -69,9 +70,11 @@ public:
   return top + "\n".join(subclass_methods) + visit_method + "\n};\n"
 
 def make_variant_snippet(base_class, subclasses):
-  return f"""
-using {base_class} = std::variant<{", ".join(subclasses)}>;
+  top =  f"""
+using {base_class} = std::variant<
 """
+  lines = ",\n".join(map(lambda s: f"    std::unique_ptr<{s}>", subclasses))
+  return top + lines + "\n>;\n"
 
 def make_forward_decls_snippet(subclass_names):
   comment_about_decls ="""
