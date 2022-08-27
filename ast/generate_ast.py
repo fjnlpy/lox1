@@ -86,7 +86,7 @@ def make_subclasses_snippet(subclasses):
   for c, o in subclasses:
     top = f"struct {c} {{\n"
     enum_definition = o.get("enumDefinition") # might be None
-    fields = "\n".join(map(lambda f: f"  {f};", o["fields"]))
+    fields = "\n".join(map(lambda f: f"  {f};", o["children"]))
     snippets.append(
       top +
       (f"  {enum_definition}\n" if enum_definition else "") +
