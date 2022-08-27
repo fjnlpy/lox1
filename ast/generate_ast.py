@@ -73,7 +73,7 @@ def make_variant_snippet(base_class, subclasses):
   top =  f"""
 using {base_class} = std::variant<
 """
-  lines = ",\n".join(map(lambda s: f"    std::unique_ptr<{s}>", subclasses))
+  lines = ",\n".join(map(lambda s: f"  std::unique_ptr<{s}>", subclasses))
   return top + lines + "\n>;\n"
 
 def make_forward_decls_snippet(subclass_names):
