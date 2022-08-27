@@ -8,8 +8,6 @@ import json
 from pathlib import Path
 
 def emit(classes, output_dir):
-    # TODO: Read the JSON and emit C++ structs to `output dir/<baseClass>.hpp`
-
     base_class = classes["baseClass"]
     subclass_names = classes["subClasses"].keys()
 
