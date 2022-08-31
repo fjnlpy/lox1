@@ -24,6 +24,7 @@ def emit(classes, output_dir):
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
 
     full_class = (
+      "#pragma once\n" +
       includes_snippet + "\n" +
       "namespace ast {\n" +
       "".join([forward_decls_snippet, variant_snippet, subclasses_snippet, visitor_snippet]) +
@@ -86,7 +87,7 @@ def make_subclasses_snippet(subclasses):
   for c, o in subclasses:
     top = f"struct {c} {{\n"
     enum_definition = o.get("enumDefinition") # might be None
-    fields = "\n".join(map(lambda f: f"  {f};", o["children"]))
+    fields = "\n".join(list(map(lambda f: f"  {f};", o["children"])) + ["  size_t id;"])
     snippets.append(
       top +
       (f"  {enum_definition}\n" if enum_definition else "") +
