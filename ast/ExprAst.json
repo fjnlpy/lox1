@@ -1,5 +1,6 @@
 {
   "baseClass"  : "Expr",
+  "commonChildren": [ "size_t id" ],
   "subClasses" : {
     "BinOp" : {
       "children" : [ "Expr lhs", "Op operation", "Expr rhs" ],

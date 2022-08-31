@@ -20,7 +20,7 @@ def emit(classes, output_dir):
     forward_decls_snippet = make_forward_decls_snippet(subclass_names) # needed because variant refers to the subclasses
     includes_snippet = make_includes_snippet()
     variant_snippet = make_variant_snippet(base_class, subclass_names)
-    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
+    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items(), classes["commonChildren"])
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
 
     full_class = (
@@ -81,13 +81,13 @@ def make_forward_decls_snippet(subclass_names):
 """
   return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
 
-def make_subclasses_snippet(subclasses):
+def make_subclasses_snippet(subclasses, common_children):
   snippets = []
 
   for c, o in subclasses:
     top = f"struct {c} {{\n"
     enum_definition = o.get("enumDefinition") # might be None
-    fields = "\n".join(list(map(lambda f: f"  {f};", o["children"])) + ["  size_t id;"])
+    fields = "\n".join(map(lambda f: f"  {f};", o["children"] + common_children))
     snippets.append(
       top +
       (f"  {enum_definition}\n" if enum_definition else "") +
