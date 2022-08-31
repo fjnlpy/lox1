@@ -82,18 +82,57 @@ def make_forward_decls_snippet(subclass_names):
   return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
 
 def make_subclasses_snippet(subclasses, common_children):
+  def split_child(child):
+    split = child.split(" ")
+    assert len(split) == 2, f"Expected exactly two parts after splitting child on space: {split}"
+    return split
+
+  # Accessors are added because they might be useful later for changing the internal representation
+  # without breaking clients too badly.
+  def make_accessor(child):
+    return f"  {child[0]} &{child[1]}() {{ return {child[1]}_; }}"
+
+  def make_constructor(name, arguments):
+    argument_list = ",\n    ".join(map(lambda a: f"{a[0]} {a[1]}", arguments))
+    initializers = ",\n    ".join(map(lambda a: f"{a[1]}_(std::move({a[1]}))", arguments))
+    return f"  {name}(\n    {argument_list}\n ): {initializers} {{ }}"
+
   snippets = []
 
   for c, o in subclasses:
-    top = f"struct {c} {{\n"
-    enum_definition = o.get("enumDefinition") # might be None
-    fields = "\n".join(map(lambda f: f"  {f};", o["children"] + common_children))
-    snippets.append(
-      top +
-      (f"  {enum_definition}\n" if enum_definition else "") +
-      fields +
-      "\n};\n"
-    )
+    all_children = o["children"] + common_children
+    # Split child definitions into a pair of type and name, since we often
+    # need each piece of data separately.
+    all_children = list(map(split_child, all_children))
+
+    top = f"struct {c} {{\n" # TODO:
+    enum_definition =  "  " + o.get("enumDefinition", "\n") # TODO: make this be formatted well
+    constructor = make_constructor(c, all_children)
+    fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", all_children))
+    accessors = "\n".join(map(make_accessor, all_children))
+
+    snippets.append(f"""
+class {c} {{
+public:
+{enum_definition}
+{constructor}
+
+{accessors}
+
+private:
+{fields}
+}};
+""")
+
+    # snippets.append(
+    #   top +
+    #   (f"  {enum_definition}\n" if enum_definition else "") +
+    #   constructor +
+    #   accessors + 
+    #   "\n\nprivate:\n" +
+    #   fields +
+    #   "\n};\n"
+    # ) # TODO: make this use a string literal? It's a bit of a mess right now.
 
   return "\n" + "\n".join(snippets)
 
