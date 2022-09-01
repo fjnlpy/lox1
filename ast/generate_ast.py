@@ -11,9 +11,7 @@ def resolve(classes):
   # Only thing we need to do is merge the common children with the subclass-specific ones.
   common_children = classes["commonChildren"]
   for _, c in classes["subClasses"].items():
-    print(c["children"])
     c["children"] += common_children
-    print(c["children"])
 
 def emit(classes, output_dir):
     base_class = classes["baseClass"]
