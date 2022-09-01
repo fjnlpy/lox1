@@ -7,6 +7,14 @@ from sys import argv
 import json
 from pathlib import Path
 
+def resolve(classes):
+  # Only thing we need to do is merge the common children with the subclass-specific ones.
+  common_children = classes["commonChildren"]
+  for _, c in classes["subClasses"].items():
+    print(c["children"])
+    c["children"] += common_children
+    print(c["children"])
+
 def emit(classes, output_dir):
     base_class = classes["baseClass"]
     subclass_names = classes["subClasses"].keys()
@@ -20,7 +28,7 @@ def emit(classes, output_dir):
     forward_decls_snippet = make_forward_decls_snippet(subclass_names) # needed because variant refers to the subclasses
     includes_snippet = make_includes_snippet()
     variant_snippet = make_variant_snippet(base_class, subclass_names)
-    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items(), classes["commonChildren"])
+    subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
 
     full_class = (
@@ -81,7 +89,7 @@ def make_forward_decls_snippet(subclass_names):
 """
   return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
 
-def make_subclasses_snippet(subclasses, common_children):
+def make_subclasses_snippet(subclasses):
   def split_child(child):
     split = child.split(" ")
     assert len(split) == 2, f"Expected exactly two parts after splitting child on space: {split}"
@@ -100,16 +108,15 @@ def make_subclasses_snippet(subclasses, common_children):
   snippets = []
 
   for c, o in subclasses:
-    all_children = o["children"] + common_children
     # Split child definitions into a pair of type and name, since we often
     # need each piece of data separately.
-    all_children = list(map(split_child, all_children))
+    split_children = list(map(split_child, o["children"]))
 
     top = f"struct {c} {{\n" # TODO:
     enum_definition =  "  " + o.get("enumDefinition") + "\n" if o.get("enumDefinition") else ""
-    constructor = make_constructor(c, all_children)
-    fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", all_children))
-    accessors = "\n".join(map(make_accessor, all_children))
+    constructor = make_constructor(c, split_children)
+    fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", split_children))
+    accessors = "\n".join(map(make_accessor, split_children))
 
     snippets.append(f"""
 class {c} {{
@@ -151,6 +158,8 @@ def main():
 
   with open(ast_file) as f:
     classes = json.loads("".join(f.readlines()))
+
+  resolve(classes)
   emit(classes, output_dir)
 
 if __name__ == "__main__":
