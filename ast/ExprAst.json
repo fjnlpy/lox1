@@ -1,6 +1,9 @@
 {
   "baseClass"  : "Expr",
   "commonChildren": [ "size_t id" ],
+  "autoProvidedDefinitions" : {
+    "id" : [ "++counter; // TODO: ensure this is shared across translation units" ]
+  },
   "subClasses" : {
     "BinOp" : {
       "children" : [ "Expr lhs", "Op operation", "Expr rhs" ],
