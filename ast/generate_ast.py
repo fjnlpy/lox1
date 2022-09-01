@@ -112,7 +112,6 @@ def make_subclasses_snippet(subclasses):
     # need each piece of data separately.
     split_children = list(map(split_child, o["children"]))
 
-    top = f"struct {c} {{\n" # TODO:
     enum_definition =  "  " + o.get("enumDefinition") + "\n" if o.get("enumDefinition") else ""
     constructor = make_constructor(c, split_children)
     fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", split_children))
