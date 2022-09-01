@@ -37,6 +37,7 @@ def emit(classes, output_dir):
     variant_snippet = make_variant_snippet(base_class, subclass_names)
     subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
+    factory_funs_snippet = make_factory_funs_snippet(classes["subClasses"], base_class, classes["autoProvidedDefinitions"])
 
     full_class = (
       "#pragma once\n" +
@@ -129,8 +130,43 @@ private:
 }};
 """)
 
-
   return "\n" + "\n".join(snippets)
+
+def make_factory_funs_snippet(base_class, subclasses, auto_provided_defs): # TODO: base class not needed here?
+  # - If a child is in the list of auto-provided children, use a lookup to find
+  #   out how to populate that child, instead of expecting it as an argument.
+  # - Returns a unique_ptr to the created AST node, which will implicitly convert
+  #   to the base class variant type if passed to another factory function.
+  # - If a subclass has an enum definition, create one function per enum value,
+  #   which sets the enum to the appropriate value.
+
+  def make_snippet(type, name, arguments, forwards):
+    return f"""
+std::unique_ptr<{c}>
+{name}(
+{arguments}
+) {{
+  return std::make_unique(
+{forwards}
+  );
+}}
+"""
+
+  defs = []
+  for c, o in subclasses:
+    if o["enumDefinition"]:
+      pass
+      # TODO: Refactor enumDefinition so that it's an object with name and list of alternatives (space-separated?)
+      # TODO: for v in enum value: name = v, c = c, arguments filter v (assert only 1), forwards pass v (assert only 1)
+    else:
+      name = to_camel_case(c)
+      arguments = ",\n".join([f"{t} &&{n}" for t, n in o["children"] if n not in auto_provided_defs])
+      forwards =  ",\n".join(
+        [auto_provided_defs[n] if n in auto_provided_defs else f"std::move({n})" for _, n in o["children"]]
+      )
+      defs.append(make_snippet(c, name, arguments, forwards))
+
+  return defs
 
 def to_camel_case(pascal_case_word):
   if len(pascal_case_word) > 0 and pascal_case_word[0].isupper():
