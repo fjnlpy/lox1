@@ -48,6 +48,7 @@ def make_includes_snippet():
 #include <string>
 #include <variant>
 #include <memory>
+#include <utility>
 """
 
 def make_visitor_snippet(base_class, subclass_names):
