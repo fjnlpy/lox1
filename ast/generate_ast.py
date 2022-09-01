@@ -95,7 +95,7 @@ def make_subclasses_snippet(subclasses, common_children):
   def make_constructor(name, arguments):
     argument_list = ",\n    ".join(map(lambda a: f"{a[0]} {a[1]}", arguments))
     initializers = ",\n    ".join(map(lambda a: f"{a[1]}_(std::move({a[1]}))", arguments))
-    return f"  {name}(\n    {argument_list}\n ): {initializers} {{ }}"
+    return f"  {name}(\n    {argument_list}\n  ): {initializers} {{ }}"
 
   snippets = []
 
@@ -106,7 +106,7 @@ def make_subclasses_snippet(subclasses, common_children):
     all_children = list(map(split_child, all_children))
 
     top = f"struct {c} {{\n" # TODO:
-    enum_definition =  "  " + o.get("enumDefinition", "\n") # TODO: make this be formatted well
+    enum_definition =  "  " + o.get("enumDefinition") + "\n" if o.get("enumDefinition") else ""
     constructor = make_constructor(c, all_children)
     fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", all_children))
     accessors = "\n".join(map(make_accessor, all_children))
