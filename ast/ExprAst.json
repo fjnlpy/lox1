@@ -10,10 +10,10 @@
       "children" : [ "Op operation", "Expr child" ],
       "enumDefinition" : "enum class Op { Negate, Not };"
     },
-    "StringLiteral" : {
+    "String" : {
       "children" : [ "std::string value" ]
     },
-    "NumLiteral" : {
+    "Num" : {
       "children" : [ "double value" ]
     },
     "Grouping" : {
