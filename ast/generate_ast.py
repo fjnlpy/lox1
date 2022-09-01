@@ -129,15 +129,6 @@ private:
 }};
 """)
 
-    # snippets.append(
-    #   top +
-    #   (f"  {enum_definition}\n" if enum_definition else "") +
-    #   constructor +
-    #   accessors + 
-    #   "\n\nprivate:\n" +
-    #   fields +
-    #   "\n};\n"
-    # ) # TODO: make this use a string literal? It's a bit of a mess right now.
 
   return "\n" + "\n".join(snippets)
 
