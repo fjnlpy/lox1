@@ -8,10 +8,19 @@ import json
 from pathlib import Path
 
 def resolve(classes):
-  # Only thing we need to do is merge the common children with the subclass-specific ones.
+  # Merge the common children with the subclass-specific ones.
   common_children = classes["commonChildren"]
   for _, c in classes["subClasses"].items():
     c["children"] += common_children
+
+  # Split the child definitions into (type,name) pairs.
+  def split_child(child):
+    split = child.split(" ")
+    assert len(split) == 2, f"Expected exactly two parts after splitting child on space: {split}"
+    return split
+
+  for _,c in classes["subClasses"].items():
+    c["children"] = [split_child(child) for child in c["children"]]
 
 def emit(classes, output_dir):
     base_class = classes["baseClass"]
@@ -89,11 +98,6 @@ def make_forward_decls_snippet(subclass_names):
   return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
 
 def make_subclasses_snippet(subclasses):
-  def split_child(child):
-    split = child.split(" ")
-    assert len(split) == 2, f"Expected exactly two parts after splitting child on space: {split}"
-    return split
-
   # Accessors are added because they might be useful later for changing the internal representation
   # without breaking clients too badly.
   def make_accessor(child):
@@ -107,14 +111,10 @@ def make_subclasses_snippet(subclasses):
   snippets = []
 
   for c, o in subclasses:
-    # Split child definitions into a pair of type and name, since we often
-    # need each piece of data separately.
-    split_children = list(map(split_child, o["children"]))
-
     enum_definition =  "  " + o.get("enumDefinition") + "\n" if o.get("enumDefinition") else ""
-    constructor = make_constructor(c, split_children)
-    fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", split_children))
-    accessors = "\n".join(map(make_accessor, split_children))
+    constructor = make_constructor(c, o["children"])
+    fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", o["children"]))
+    accessors = "\n".join(map(make_accessor, o["children"]))
 
     snippets.append(f"""
 class {c} {{
