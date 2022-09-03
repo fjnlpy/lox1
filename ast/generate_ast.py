@@ -109,10 +109,18 @@ def make_subclasses_snippet(subclasses):
     initializers = ",\n    ".join(map(lambda a: f"{a[1]}_(std::move({a[1]}))", arguments))
     return f"  {name}(\n    {argument_list}\n  ): {initializers} {{ }}"
 
+  def make_enum(definition):
+    if definition is None:
+      return ""
+
+    name = definition["name"]
+    values = ", ".join(definition["values"])
+    return f"  enum class {name} {{ {values} }};\n"
+
   snippets = []
 
   for c, o in subclasses:
-    enum_definition =  "  " + o.get("enumDefinition") + "\n" if o.get("enumDefinition") else ""
+    enum_definition =  make_enum(o.get("enumDefinition")) # use `get` because definition may not exist
     constructor = make_constructor(c, o["children"])
     fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", o["children"]))
     accessors = "\n".join(map(make_accessor, o["children"]))

@@ -7,11 +7,17 @@
   "subClasses" : {
     "BinOp" : {
       "children" : [ "Expr lhs", "Op operation", "Expr rhs" ],
-      "enumDefinition" : "enum class Op { Mult, Div, Add, Sub, GtEq, Gt, LtEq, Lt, Eq, Neq };"
+      "enumDefinition" : {
+        "name" :  "Op",
+        "values" : [ "Mult", "Div", "Add", "Sub", "GtEq", "Gt", "LtEq", "Lt", "Eq", "Neq" ]
+      }
     },
     "UnaryOp" : {
       "children" : [ "Op operation", "Expr child" ],
-      "enumDefinition" : "enum class Op { Negate, Not };"
+      "enumDefinition" : {
+        "name" :  "Op",
+        "values" : [ "Negate", "Not" ]
+      }
     },
     "String" : {
       "children" : [ "std::string value" ]
