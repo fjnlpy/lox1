@@ -36,14 +36,14 @@ def emit(classes, output_dir):
     includes_snippet = make_includes_snippet()
     variant_snippet = make_variant_snippet(base_class, subclass_names)
     subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
+    factory_funs_snippet = make_factory_funs_snippet(classes["subClasses"].items(), classes["autoProvidedDefs"])
     visitor_snippet = make_visitor_snippet(base_class, subclass_names)
-    factory_funs_snippet = make_factory_funs_snippet(classes["subClasses"], base_class, classes["autoProvidedDefinitions"])
 
     full_class = (
       "#pragma once\n" +
       includes_snippet + "\n" +
       "namespace ast {\n" +
-      "".join([forward_decls_snippet, variant_snippet, subclasses_snippet, visitor_snippet]) +
+      "".join([forward_decls_snippet, variant_snippet, subclasses_snippet, factory_funs_snippet, visitor_snippet]) +
       "}\n"
     )
 
@@ -140,7 +140,7 @@ private:
 
   return "\n" + "\n".join(snippets)
 
-def make_factory_funs_snippet(base_class, subclasses, auto_provided_defs): # TODO: base class not needed here?
+def make_factory_funs_snippet(subclasses, auto_provided_defs):
   # - If a child is in the list of auto-provided children, use a lookup to find
   #   out how to populate that child, instead of expecting it as an argument.
   # - Returns a unique_ptr to the created AST node, which will implicitly convert
@@ -148,9 +148,25 @@ def make_factory_funs_snippet(base_class, subclasses, auto_provided_defs): # TOD
   # - If a subclass has an enum definition, create one function per enum value,
   #   which sets the enum to the appropriate value.
 
-  def make_snippet(type, name, arguments, forwards):
+  def make_snippet(class_type, name, children, enum_name_and_value):
+    arguments = ",\n".join([
+      f"  {t} &&{n}" for t, n in children if (
+          n not in auto_provided_defs and (enum_name_and_value is None or t != enum_name_and_value["name"])
+        )
+      ])
+    forwards = []
+    for t, n in children:
+      if n in auto_provided_defs:
+        forwards.append(auto_provided_defs[n])
+      elif enum_name_and_value is not None and t == enum_name_and_value["name"]:
+        # Need to fully qualify the enum value because we are out of class_type's scope here.
+        forwards.append(f"    {class_type}::{enum_name_and_value['name']}::{enum_name_and_value['value']}")
+      else:
+        forwards.append(f"    std::move({n})")
+    forwards = ",\n".join(forwards)
+
     return f"""
-std::unique_ptr<{c}>
+std::unique_ptr<{class_type}>
 {name}(
 {arguments}
 ) {{
@@ -162,19 +178,24 @@ std::unique_ptr<{c}>
 
   defs = []
   for c, o in subclasses:
-    if o["enumDefinition"]:
-      pass
-      # TODO: Refactor enumDefinition so that it's an object with name and list of alternatives (space-separated?)
-      # TODO: for v in enum value: name = v, c = c, arguments filter v (assert only 1), forwards pass v (assert only 1)
+    if enum := o.get("enumDefinition"):
+      # The subclass has an enum. 
+      # Make a factory for each value of the enum, named after the enum.
+      # E.g. Add, Sub, Div, etc. factories instead of one binOp factory.
+      for v in enum["values"]:
+        children_with_enum_type = [child for child in o["children"] if child[0] == enum["name"]]
+        assert len(children_with_enum_type) == 1, (
+          f"Expected enum {enum['name']} to appear once as child of subclass {c}"
+        )
+        assert children_with_enum_type[0][1] not in auto_provided_defs, (
+          f"Enum {enum['name']} can't be auto-provided in {c}"
+        )
+        defs.append(make_snippet(c, to_camel_case(v), o["children"], { "name": enum["name"], "value" : v }))
     else:
-      name = to_camel_case(c)
-      arguments = ",\n".join([f"{t} &&{n}" for t, n in o["children"] if n not in auto_provided_defs])
-      forwards =  ",\n".join(
-        [auto_provided_defs[n] if n in auto_provided_defs else f"std::move({n})" for _, n in o["children"]]
-      )
-      defs.append(make_snippet(c, name, arguments, forwards))
+      # No enum. Just make one factory function, based on the name of the subclass.
+      defs.append(make_snippet(c, to_camel_case(c), o["children"], None))
 
-  return defs
+  return "\n".join(defs)
 
 def to_camel_case(pascal_case_word):
   if len(pascal_case_word) > 0 and pascal_case_word[0].isupper():

@@ -1,8 +1,8 @@
 {
   "baseClass"  : "Expr",
   "commonChildren": [ "size_t id" ],
-  "autoProvidedDefinitions" : {
-    "id" : [ "++counter; // TODO: ensure this is shared across translation units" ]
+  "autoProvidedDefs" : {
+    "id" : "    ++counter // TODO: ensure this is shared across translation units"
   },
   "subClasses" : {
     "BinOp" : {
