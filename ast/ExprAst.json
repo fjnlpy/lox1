@@ -16,7 +16,7 @@
       "children" : [ "Op operation", "Expr child" ],
       "enumDefinition" : {
         "name" :  "Op",
-        "values" : [ "Negate", "Not" ]
+        "values" : [ "Negate", "Nott" ]
       }
     },
     "String" : {
