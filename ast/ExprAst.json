@@ -1,4 +1,5 @@
 {
+  "includesForAst" : [ "<string>" ],
   "baseClass"  : "Expr",
   "commonChildren": [ "size_t id" ],
   "autoProvidedDefs" : {

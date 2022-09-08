@@ -33,7 +33,7 @@ def emit(classes, output_dir):
     assert not output_file.exists(), f"Output file already exists: {output_file}"
 
     forward_decls_snippet = make_forward_decls_snippet(subclass_names) # needed because variant refers to the subclasses
-    includes_snippet = make_includes_snippet()
+    includes_snippet = make_includes_snippet(classes["includesForAst"])
     variant_snippet = make_variant_snippet(base_class, subclass_names)
     subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     factory_funs_snippet = make_factory_funs_snippet(classes["subClasses"].items(), classes["autoProvidedDefs"])
@@ -50,14 +50,11 @@ def emit(classes, output_dir):
     with open(output_file, "x") as writer:
       writer.write(full_class)
 
-def make_includes_snippet():
-  # We have a known set of includes
-  return """
-#include <string>
-#include <variant>
-#include <memory>
-#include <utility>
-"""
+def make_includes_snippet(includes_for_ast):
+  # We have a known set of includes based on hard-coded code generation logic,
+  # plus includes used by the AST nodes themselves.
+  known_includes = [ "<variant>", "<memory>", "<utility>" ]
+  return "\n" + "\n".join([f"#include {include}" for include in set(known_includes + includes_for_ast)]) + "\n"
 
 def make_visitor_snippet(base_class, subclass_names):
   camel_base_class = to_camel_case(base_class)
