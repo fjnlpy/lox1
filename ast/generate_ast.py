@@ -72,6 +72,7 @@ def make_visitor_snippet(base_class, subclass_names):
   camel_base_class = to_camel_case(base_class)
 
   top = f"""
+template <class T>
 class Visitor {{
 public:
   virtual ~Visitor() =default;
@@ -81,14 +82,14 @@ public:
   subclass_methods = []
   for c in subclass_names:
     camel_c = to_camel_case(c)
-    subclass_methods.append(f"  virtual void visit{c}({c} &{camel_c}) =0;")
-    subclass_methods.append(f"  void operator()(std::unique_ptr<{c}> &{camel_c}) {{ visit{c}(*{camel_c}); }}\n")
+    subclass_methods.append(f"  virtual T visit{c}({c} &{camel_c}) =0;")
+    subclass_methods.append(f"  T operator()(std::unique_ptr<{c}> &{camel_c}) {{ return visit{c}(*{camel_c}); }}\n")
 
   visit_method = f"""
-  void
+  T
   visit({base_class} &{camel_base_class})
   {{
-    std::visit(*this, {camel_base_class});
+    return std::visit(*this, {camel_base_class});
   }}
 """
 
