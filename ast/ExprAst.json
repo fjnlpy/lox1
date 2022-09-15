@@ -1,9 +1,9 @@
 {
-  "includesForAst" : [ "<string>" ],
+  "includesForAst" : [ "<string>", "\"utils/counter.hpp\"" ],
   "baseClass"  : "Expr",
   "commonChildren": [ "size_t id" ],
   "autoProvidedDefs" : {
-    "id" : "    ++counter // TODO: ensure this is shared across translation units"
+    "id" : "    Counter::next()"
   },
   "subClasses" : {
     "BinOp" : {
