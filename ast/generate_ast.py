@@ -54,7 +54,19 @@ def make_includes_snippet(includes_for_ast):
   # We have a known set of includes based on hard-coded code generation logic,
   # plus includes used by the AST nodes themselves.
   known_includes = [ "<variant>", "<memory>", "<utility>" ]
-  return "\n" + "\n".join([f"#include {include}" for include in set(known_includes + includes_for_ast)]) + "\n"
+  system_includes, project_includes = [], []
+  for include in set(known_includes + includes_for_ast):
+    if include[0] == "<":
+      system_includes.append(include)
+    else:
+      project_includes.append(include)
+  return (
+    "\n" +
+    "\n".join([f"#include {x}" for x in system_includes]) +
+    "\n\n" +
+    "\n".join([f"#include {x}" for x in project_includes]) +
+    "\n"
+  )
 
 def make_visitor_snippet(base_class, subclass_names):
   camel_base_class = to_camel_case(base_class)
