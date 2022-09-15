@@ -151,6 +151,13 @@ def make_factory_funs_snippet(subclasses, auto_provided_defs):
           n not in auto_provided_defs and (enum_name_and_value is None or t != enum_name_and_value["name"])
         )
       ])
+    # Argument types need to be fully specified (including qualifications on enum values).
+    # The compiler can't seem to infer them from the arguments and return type.
+    argument_types = ",\n".join([
+      f"    {class_type}::{child[0]}" if (
+        enum_name_and_value is not None and child[0] == enum_name_and_value["name"]
+        ) else f"    {child[0]}"  for child in children
+      ])
     forwards = []
     for t, n in children:
       if n in auto_provided_defs:
@@ -167,7 +174,10 @@ std::unique_ptr<{class_type}>
 {name}(
 {arguments}
 ) {{
-  return std::make_unique(
+  return std::make_unique<
+    {class_type},
+{argument_types}
+  >(
 {forwards}
   );
 }}
