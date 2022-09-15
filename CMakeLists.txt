@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(googletest)
 # Target for compiler.
 set(SOURCES src/lexer/lexer.cpp)
 include_directories(include)
+include_directories(generated)
 add_library(Lox1 ${SOURCES})
 
 # Binary for main.
