@@ -5,7 +5,7 @@
 #include <sstream>
 #include <functional>
 
-#include "utils/error.hpp"
+#include "utils/Error.hpp"
 
 namespace lexer {
 

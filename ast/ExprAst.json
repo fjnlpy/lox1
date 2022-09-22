@@ -1,5 +1,5 @@
 {
-  "includesForAst" : [ "<string>", "\"utils/counter.hpp\"" ],
+  "includesForAst" : [ "<string>", "\"utils/Counter.hpp\"" ],
   "baseClass"  : "Expr",
   "commonChildren": [ "size_t id" ],
   "autoProvidedDefs" : {

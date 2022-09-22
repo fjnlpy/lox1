@@ -12,7 +12,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Target for compiler.
-set(SOURCES src/lexer/lexer.cpp)
+set(SOURCES src/lexer/Lexer.cpp)
 include_directories(include)
 include_directories(generated)
 add_library(Lox1 ${SOURCES})
@@ -27,9 +27,9 @@ target_compile_options(Lox1 PRIVATE -Wall -Wextra -Werror)
 # Discover googletest tests and make test binary.
 enable_testing()
 
-set(TEST_SOURCES  test/lexer/token_tests.cpp
-                  test/lexer/lexer_tests.cpp
-                  test/ast/ast_tests.cpp
+set(TEST_SOURCES  test/lexer/TokenTests.cpp
+                  test/lexer/LexerTests.cpp
+                  test/ast/AstTests.cpp
 )
 add_executable(
   tests

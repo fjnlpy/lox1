@@ -3,8 +3,8 @@
 #include <vector>
 #include <optional>
 
-#include "lexer/lexer.h"
-#include "utils/logging.hpp"
+#include "lexer/Lexer.h"
+#include "utils/Logging.hpp"
 
 using namespace lexer;
 

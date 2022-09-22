@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-#include "utils/assert.hpp"
+#include "utils/Assert.hpp"
 
 class CompileError {
 public:

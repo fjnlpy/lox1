@@ -1,11 +1,11 @@
-#include "lexer/lexer.h"
+#include "lexer/Lexer.h"
 
 #include <utility>
 #include <stdexcept>
 #include <unordered_map>
 
-#include "utils/error.hpp"
-#include "utils/assert.hpp"
+#include "utils/Error.hpp"
+#include "utils/Assert.hpp"
 
 namespace {
 

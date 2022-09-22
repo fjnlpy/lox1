@@ -5,7 +5,7 @@
 #include <variant>
 #include <utility>
 
-#include "utils/counter.hpp"
+#include "utils/Counter.hpp"
 
 namespace ast {
 
