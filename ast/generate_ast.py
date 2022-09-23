@@ -184,7 +184,7 @@ def make_factory_funs_snippet(subclasses, auto_provided_defs):
 
     return f"""
 std::unique_ptr<{class_type}>
-{name}(
+inline {name}(
 {arguments}
 ) {{
   return std::make_unique<

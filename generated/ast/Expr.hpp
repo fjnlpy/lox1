@@ -1,8 +1,8 @@
 #pragma once
 
+#include <variant>
 #include <string>
 #include <memory>
-#include <variant>
 #include <utility>
 
 #include "utils/Counter.hpp"
@@ -129,7 +129,7 @@ private:
 };
 
 std::unique_ptr<BinOp>
-mult(
+inline mult(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -149,7 +149,7 @@ mult(
 
 
 std::unique_ptr<BinOp>
-div(
+inline div(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -169,7 +169,7 @@ div(
 
 
 std::unique_ptr<BinOp>
-add(
+inline add(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -189,7 +189,7 @@ add(
 
 
 std::unique_ptr<BinOp>
-sub(
+inline sub(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -209,7 +209,7 @@ sub(
 
 
 std::unique_ptr<BinOp>
-gtEq(
+inline gtEq(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -229,7 +229,7 @@ gtEq(
 
 
 std::unique_ptr<BinOp>
-gt(
+inline gt(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -249,7 +249,7 @@ gt(
 
 
 std::unique_ptr<BinOp>
-ltEq(
+inline ltEq(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -269,7 +269,7 @@ ltEq(
 
 
 std::unique_ptr<BinOp>
-lt(
+inline lt(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -289,7 +289,7 @@ lt(
 
 
 std::unique_ptr<BinOp>
-eq(
+inline eq(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -309,7 +309,7 @@ eq(
 
 
 std::unique_ptr<BinOp>
-neq(
+inline neq(
   Expr &&lhs,
   Expr &&rhs
 ) {
@@ -329,7 +329,7 @@ neq(
 
 
 std::unique_ptr<UnaryOp>
-negate(
+inline negate(
   Expr &&child
 ) {
   return std::make_unique<
@@ -346,7 +346,7 @@ negate(
 
 
 std::unique_ptr<UnaryOp>
-nott(
+inline nott(
   Expr &&child
 ) {
   return std::make_unique<
@@ -363,7 +363,7 @@ nott(
 
 
 std::unique_ptr<String>
-string(
+inline string(
   std::string &&value
 ) {
   return std::make_unique<
@@ -378,7 +378,7 @@ string(
 
 
 std::unique_ptr<Num>
-num(
+inline num(
   double &&value
 ) {
   return std::make_unique<
@@ -393,7 +393,7 @@ num(
 
 
 std::unique_ptr<Grouping>
-grouping(
+inline grouping(
   Expr &&child
 ) {
   return std::make_unique<
