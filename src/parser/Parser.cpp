@@ -1,5 +1,9 @@
 #include "parser/Parser.h"
 
+#include <memory>
+
+#include <utils/Counter.hpp>
+
 using lexer::Token;
 
 namespace parser {
@@ -19,13 +23,50 @@ Parser::expression()
   return equality();
 }
 
-// TODO: some kind of generic helper for this pattern?
+// TODO: some kind of generic helper for this pattern? I think it needs to take
+//  a lambda: (lhs, rhs, token::op) -> Expr
+// ast::Expr
+// Parser::equality()
+// {
+//   auto lhs = comparison();
+//   while (auto op = match(Token::Type::EQ_EQ, Token::Type::BANG_EQ)) {
+//     auto rhs = comparison();
+//     switch (op->get().getType()) {
+//       // TODO: somewhat frustrating amount of duplication. Is it better to
+//       //   just create the ast "manually"? Might actually look better than this
+//       //   because the creation can be factored out of the switch statement.
+//       case Token::Type::EQ_EQ:
+//         lhs = ast::eq(std::move(lhs), std::move(rhs)); break;
+//       case Token::Type::BANG_EQ:
+//         lhs = ast::neq(std::move(lhs), std::move(rhs)); break;
+//     }
+//   }
+//   return lhs;
+// }
+
 ast::Expr
 Parser::equality()
 {
-  auto expr = comparison();
+  using ast::BinOp;
 
-  // TODO: the equality stuff.
+  auto lhs = comparison();
+  while (auto op = match(Token::Type::EQ_EQ, Token::Type::BANG_EQ)) {
+    auto rhs = comparison();
+
+    ast::BinOp::Op op2;
+    switch (op->get().getType()) {
+      // TODO: somewhat frustrating amount of duplication. Is it better to
+      //   just create the ast "manually"? Might actually look better than this
+      //   because the creation can be factored out of the switch statement.
+      case Token::Type::EQ_EQ:
+        op2 = BinOp::Op::Eq; break;
+      case Token::Type::BANG_EQ:
+        op2 = BinOp::Op::Neq; break;
+    }
+
+    lhs = std::make_unique<BinOp, ast::Expr, BinOp::Op, ast::Expr, size_t>(std::move(lhs), op2, std::move(rhs), Counter::next());
+  }
+  return lhs;
 }
 
 const lexer::Token &
