@@ -1,20 +1,20 @@
 #pragma once
 
-#include <variant>
+#include <utility>
 #include <string>
 #include <memory>
-#include <utility>
+#include <variant>
 
 #include "utils/Counter.hpp"
 
 namespace ast {
 
 // Forward declarations are needed because the superclass and subclasses mutually refer to each other.
-struct BinOp;
-struct UnaryOp;
-struct String;
-struct Num;
-struct Grouping;
+class BinOp;
+class UnaryOp;
+class String;
+class Num;
+class Grouping;
 
 using Expr = std::variant<
   std::unique_ptr<BinOp>,

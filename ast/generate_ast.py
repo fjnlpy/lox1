@@ -106,7 +106,7 @@ def make_forward_decls_snippet(subclass_names):
   comment_about_decls ="""
 // Forward declarations are needed because the superclass and subclasses mutually refer to each other.
 """
-  return comment_about_decls + "\n".join(map(lambda s: f"struct {s};", subclass_names)) + "\n"
+  return comment_about_decls + "\n".join(map(lambda s: f"class {s};", subclass_names)) + "\n"
 
 def make_subclasses_snippet(subclasses):
   # Accessors are added because they might be useful later for changing the internal representation
