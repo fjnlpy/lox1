@@ -12,7 +12,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Target for compiler.
-set(SOURCES src/lexer/Lexer.cpp)
+set(SOURCES src/lexer/Lexer.cpp
+            src/parser/Parser.cpp
+)
 include_directories(include)
 include_directories(generated)
 add_library(Lox1 ${SOURCES})
