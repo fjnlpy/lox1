@@ -30,6 +30,7 @@ enable_testing()
 set(TEST_SOURCES  test/lexer/TokenTests.cpp
                   test/lexer/LexerTests.cpp
                   test/ast/AstTests.cpp
+                  test/visit/PrettyPrinterTests.cpp
 )
 add_executable(
   tests
