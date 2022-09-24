@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <optional>
+#include <functional>
 
 #include "ast/Expr.hpp"
 #include "lexer/Lexer.h"
@@ -21,7 +23,7 @@ private:
   const lexer::Token &current() const;
   const lexer::Token &advance();
   template <class... T> bool peek(T &&... tokens);
-  template <class... T> bool match(T &&... tokens);
+  template <class... T> std::optional<std::reference_wrapper<const Token>> match(T &&... tokens);
 
 
   // Methods for non-terminals in the grammar.

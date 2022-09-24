@@ -55,14 +55,13 @@ Parser::peek(T &&... tokens)
 }
 
 template <class... T>
-bool
+std::optional<std::reference_wrapper<const Token>>
 Parser::match(T &&... tokens)
 {
   if (peek(std::forward<T>(tokens)...)) {
-    advance();
-    return true;
+    return advance();
   } else {
-    return false;
+    return std::nullopt;
   }
 }
 
