@@ -84,7 +84,7 @@ Parser::advance()
 
 template <class... T>
 bool
-Parser::peek(T &&... tokens)
+Parser::peek(T &&... tokenTypes)
 {
   if (current_ + 1 >= tokens_.size()) {
     return false;
@@ -92,14 +92,14 @@ Parser::peek(T &&... tokens)
 
   const auto &nextToken = tokens_[current_ + 1];
   // True if the next token matches any of the parameters.
-  return ((nextToken.getType() == std::forward<T>(tokens).getType()) || ...);
+  return ((nextToken.getType() == std::forward<T>(tokenTypes)) || ...);
 }
 
 template <class... T>
 std::optional<std::reference_wrapper<const Token>>
-Parser::match(T &&... tokens)
+Parser::match(T &&... tokenTypes)
 {
-  if (peek(std::forward<T>(tokens)...)) {
+  if (peek(std::forward<T>(tokenTypes)...)) {
     return advance();
   } else {
     return std::nullopt;

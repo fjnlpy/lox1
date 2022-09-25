@@ -22,8 +22,8 @@ private:
   // Helpers for scanning through tokens.
   const lexer::Token &current() const;
   const lexer::Token &advance();
-  template <class... T> bool peek(T &&... tokens);
-  template <class... T> std::optional<std::reference_wrapper<const Token>> match(T &&... tokens);
+  template <class... T> bool peek(T &&...);
+  template <class... T> std::optional<std::reference_wrapper<const lexer::Token>> match(T &&...);
 
 
   // Methods for non-terminals in the grammar.
