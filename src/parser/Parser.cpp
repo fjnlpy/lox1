@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <utils/Counter.hpp>
+#include "utils/Counter.hpp"
 
 using lexer::Token;
 
