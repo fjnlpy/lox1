@@ -7,6 +7,10 @@
 #include "utils/Assert.hpp"
 
 using lexer::Token;
+using ast::BinOp;
+
+// Ideally this would be more descriptive but it should not happen anyway...
+#define DEFAULT_SWITCH_CASE default: throw std::runtime_error("Unexpected token type in mapping function.");
 
 namespace parser {
 
@@ -28,20 +32,66 @@ Parser::expression()
 ast::Expr
 Parser::equality()
 {
-  using ast::BinOp;
-
   const auto mappingFunc = [](Token::Type lexerToken) {
     switch (lexerToken) {
-      case Token::Type::EQ_EQ:
-        return BinOp::Op::Eq;
-      case Token::Type::BANG_EQ:
-        return BinOp::Op::Neq;
-      default:
-        throw std::runtime_error("Unexpected token type in equality mapping function");
+      case Token::Type::EQ_EQ: return BinOp::Op::Eq;
+      case Token::Type::BANG_EQ: return BinOp::Op::Neq;
+      DEFAULT_SWITCH_CASE
     }
   };
 
-  return createBinOp(mappingFunc, std::mem_fn(&Parser::comparison), Token::Type::EQ_EQ, Token::Type::BANG_EQ);
+  return createBinOp(mappingFunc, [this] { return comparison(); }, Token::Type::EQ_EQ, Token::Type::BANG_EQ);
+}
+
+ast::Expr
+Parser::comparison()
+{
+  const auto mappingFunc = [](Token::Type lexerToken) {
+    switch (lexerToken) {
+      case Token::Type::GT: return BinOp::Op::Gt;
+      case Token::Type::GT_EQ: return BinOp::Op::GtEq;
+      case Token::Type::LT: return BinOp::Op::Lt;
+      case Token::Type::LT_EQ: return BinOp::Op::LtEq;
+      DEFAULT_SWITCH_CASE
+    }
+  };
+
+  return createBinOp(
+    mappingFunc,
+    [this] { return term(); },
+    Token::Type::GT,
+    Token::Type::GT_EQ,
+    Token::Type::LT,
+    Token::Type::LT_EQ
+  );
+}
+
+ast::Expr
+Parser::term()
+{
+  const auto mappingFunc = [](Token::Type lexerToken) {
+    switch (lexerToken) {
+      case Token::Type::MINUS: return BinOp::Op::Sub;
+      case Token::Type::PLUS: return BinOp::Op::Add;
+      DEFAULT_SWITCH_CASE
+    }
+  };
+
+  return createBinOp(mappingFunc, [this] { return factor(); }, Token::Type::MINUS, Token::Type::PLUS);
+}
+
+ast::Expr
+Parser::factor()
+{
+  const auto mappingFunc = [](Token::Type lexerToken) {
+    switch (lexerToken) {
+      case Token::Type::SLASH: return BinOp::Op::Div;
+      case Token::Type::STAR: return BinOp::Op::Mult;
+      DEFAULT_SWITCH_CASE
+    }
+  };
+
+  return createBinOp(mappingFunc, [this] { return unary(); }, Token::Type::SLASH, Token::Type::STAR);
 }
 
 const lexer::Token &

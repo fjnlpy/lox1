@@ -33,6 +33,9 @@ private:
   ast::Expr expression();
   ast::Expr equality();
   ast::Expr comparison();
+  ast::Expr term();
+  ast::Expr factor();
+  ast::Expr unary();
 
 };
 
