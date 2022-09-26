@@ -26,8 +26,8 @@ private:
   template <class... T> std::optional<std::reference_wrapper<const lexer::Token>> match(T &&...);
 
   // Helpers for parsing grammar structures into specific AST nodes.
-  using BinOpMapFunc = ast::BinOp::Op(*)(lexer::Token::Type);
-  template <class... T, class SubExprFunc> ast::Expr createBinOp(BinOpMapFunc, const SubExprFunc &, T &&...);
+  template <class BinOpMapFunc, class SubExprFunc, class... Ts>
+  ast::Expr createBinOp(const BinOpMapFunc &, const SubExprFunc &, Ts &&...);
 
   // Methods for non-terminals in the grammar.
   ast::Expr expression();
