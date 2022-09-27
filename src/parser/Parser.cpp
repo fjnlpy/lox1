@@ -2,12 +2,14 @@
 
 #include <memory>
 #include <exception>
+#include <string>
 
 #include "utils/Counter.hpp"
 #include "utils/Assert.hpp"
 
 using lexer::Token;
 using ast::BinOp;
+using ast::UnaryOp;
 
 // Ideally this would be more descriptive but it should not happen anyway...
 #define DEFAULT_SWITCH_CASE default: throw std::runtime_error("Unexpected token type in mapping function.");
@@ -92,6 +94,44 @@ Parser::factor()
   };
 
   return createBinOp(mappingFunc, [this] { return unary(); }, Token::Type::SLASH, Token::Type::STAR);
+}
+
+ast::Expr
+Parser::unary()
+{
+  if (auto op = match(Token::Type::BANG, Token::Type::MINUS)) {
+    auto child = unary();
+
+    UnaryOp::Op op2;
+    switch (op->get().getType()) {
+      case Token::Type::BANG: op2 = UnaryOp::Op::Nott;
+      case Token::Type::MINUS: op2 = UnaryOp::Op::Negate;
+      DEFAULT_SWITCH_CASE
+    }
+
+    return std::make_unique<
+      UnaryOp,
+      UnaryOp::Op,
+      ast::Expr,
+      size_t
+    >(
+      std::move(op2),
+      std::move(child),
+      Counter::next()
+    );
+  } else {
+    return primary();
+  }
+}
+
+ast::Expr
+Parser::primary()
+{
+  if (auto op = match(Token::Type::NUM)) {
+    auto numText = op->get().getContents();
+    auto numDouble = std::stod(numText); // TODO: catch exceptions and throw my own ones
+    return ast::num(std::move(numDouble));
+  }
 }
 
 const lexer::Token &

@@ -36,6 +36,7 @@ private:
   ast::Expr term();
   ast::Expr factor();
   ast::Expr unary();
+  ast::Expr primary();
 
 };
 
