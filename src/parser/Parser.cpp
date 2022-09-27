@@ -34,6 +34,8 @@ Parser::expression()
 ast::Expr
 Parser::equality()
 {
+  // Instead of defining these mapping functions everywhere, it would probably be better to have one mapping function
+  // per ast enum that converts all valid lexer tokens to their respective value of that enum or throws if that's not possible.
   const auto mappingFunc = [](Token::Type lexerToken) {
     switch (lexerToken) {
       case Token::Type::EQ_EQ: return BinOp::Op::Eq;
