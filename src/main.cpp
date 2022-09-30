@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "utils/utils.hpp"
+#include "utils/Logging.hpp"
 
 namespace fs = std::filesystem;
 
