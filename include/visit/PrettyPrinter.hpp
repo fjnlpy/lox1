@@ -94,6 +94,21 @@ public:
     output.append(")");
   }
 
+  virtual void visitFalsee(ast::Falsee &f) override
+  {
+    output.append("false");
+  }
+
+  virtual void visitTruee(ast::Truee &t) override
+  {
+    output.append("true");
+  }
+
+  virtual void visitNil(ast::Nil &nil) override
+  {
+    output.append("nil");
+  }
+
 private:
   std::string output{};
 

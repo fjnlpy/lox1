@@ -15,13 +15,19 @@ class UnaryOp;
 class String;
 class Num;
 class Grouping;
+class Truee;
+class Falsee;
+class Nil;
 
 using Expr = std::variant<
   std::unique_ptr<BinOp>,
   std::unique_ptr<UnaryOp>,
   std::unique_ptr<String>,
   std::unique_ptr<Num>,
-  std::unique_ptr<Grouping>
+  std::unique_ptr<Grouping>,
+  std::unique_ptr<Truee>,
+  std::unique_ptr<Falsee>,
+  std::unique_ptr<Nil>
 >;
 
 
@@ -125,6 +131,48 @@ public:
 
 private:
   Expr child_;
+  size_t id_;
+};
+
+
+class Truee {
+public:
+
+  Truee(
+    size_t id
+  ): id_(std::move(id)) { }
+
+  size_t &id() { return id_; }
+
+private:
+  size_t id_;
+};
+
+
+class Falsee {
+public:
+
+  Falsee(
+    size_t id
+  ): id_(std::move(id)) { }
+
+  size_t &id() { return id_; }
+
+private:
+  size_t id_;
+};
+
+
+class Nil {
+public:
+
+  Nil(
+    size_t id
+  ): id_(std::move(id)) { }
+
+  size_t &id() { return id_; }
+
+private:
   size_t id_;
 };
 
@@ -406,6 +454,45 @@ inline grouping(
   );
 }
 
+
+std::unique_ptr<Truee>
+inline truee(
+
+) {
+  return std::make_unique<
+    Truee,
+    size_t
+  >(
+    Counter::next()
+  );
+}
+
+
+std::unique_ptr<Falsee>
+inline falsee(
+
+) {
+  return std::make_unique<
+    Falsee,
+    size_t
+  >(
+    Counter::next()
+  );
+}
+
+
+std::unique_ptr<Nil>
+inline nil(
+
+) {
+  return std::make_unique<
+    Nil,
+    size_t
+  >(
+    Counter::next()
+  );
+}
+
 template <class T>
 class Visitor {
 public:
@@ -425,6 +512,15 @@ public:
 
   virtual T visitGrouping(Grouping &grouping) =0;
   T operator()(std::unique_ptr<Grouping> &grouping) { return visitGrouping(*grouping); }
+
+  virtual T visitTruee(Truee &truee) =0;
+  T operator()(std::unique_ptr<Truee> &truee) { return visitTruee(*truee); }
+
+  virtual T visitFalsee(Falsee &falsee) =0;
+  T operator()(std::unique_ptr<Falsee> &falsee) { return visitFalsee(*falsee); }
+
+  virtual T visitNil(Nil &nil) =0;
+  T operator()(std::unique_ptr<Nil> &nil) { return visitNil(*nil); }
 
   T
   visit(Expr &expr)

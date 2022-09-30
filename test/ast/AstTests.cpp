@@ -42,6 +42,21 @@ public:
     return visit(grouping.child());
   }
 
+  virtual int visitTruee(ast::Truee &t) override
+  {
+    throw std::runtime_error("Cannot evaluate as integer.");
+  }
+
+  virtual int visitFalsee(ast::Falsee &f) override
+  {
+    throw std::runtime_error("Cannot evaluate as integer.");
+  }
+
+  virtual int visitNil(ast::Nil &nil) override
+  {
+    throw std::runtime_error("Cannot evaluate as integer.");
+  }
+
 };
 
 class IdUniquessChecker final : ast::Visitor<void> {
@@ -86,6 +101,21 @@ public:
     visit(grouping.child());
   }
 
+  virtual void visitNil(ast::Nil &nil) override
+  {
+    ids.push_back(nil.id());
+  }
+
+  virtual void visitTruee(ast::Truee &t) override
+  {
+    ids.push_back(t.id());
+  }
+
+  virtual void visitFalsee(ast::Falsee &f) override
+  {
+    ids.push_back(f.id());
+  }
+
 private:
   std::vector<size_t> ids{};
 
@@ -103,7 +133,7 @@ TEST(AstTests, TestEvaluate) {
 TEST(AstTests, TestUniqueIds) {
   IdUniquessChecker checker;
   using namespace ast;
-  Expr expr = sub(num(1), mult(num(3), num(5)));
+  Expr expr = neq(eq(sub(num(1), mult(num(3), num(5))), num(4)), falsee());
 
   ASSERT_TRUE(checker.hasUniqueIds(expr));
 }
