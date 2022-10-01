@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <ostream>
 #include <functional>
 
 #include "utils/Error.hpp"
@@ -30,6 +31,9 @@ public:
   Type getType() const;
   const std::string &getContents() const;
   unsigned getLineNumber() const;
+
+  friend std::ostream& operator<<(std::ostream&, const Token &);
+  friend std::ostream& operator<<(std::ostream&, const Token::Type &);
 
 private:
   const Type type_;

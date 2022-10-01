@@ -65,6 +65,140 @@ Token::getLineNumber() const
   return lineNumber_;
 }
 
+// These methods basically invert what the lexer does. It's kind of
+// silly in a way because when lexing we could just store the entire
+// string corrresponding to each lex, then we could get the contents of that
+// rather than having to do this. But that would be a waste of memory for
+// almost all token types. Probably the best way to do it would be to
+// make token effectively a range onto the input program (by storing
+// starting and ending line & column for each token), which we
+// could then go and re-read to recover the input. I think that's what
+// proper compilers do but I didn't think it was necessary at the time...
+
+std::ostream &
+operator<<(std::ostream &os, const Token &token)
+{
+  // This method just forwards to ostream for the token type,
+  // but also adds some metadata in cases where we don't know
+  // based on the token type alone what the user typed (corresponds
+  // pretty well with the cases where we capture the contents of
+  // the lex inside the token, e.g. identifiers, numbers).
+  os << token.getType();
+  switch (token.getType()) {
+    case Token::Type::ID:
+    case Token::Type::NUM: {
+      const auto &contents = token.getContents();
+      os << "( '";
+      if (contents.size() > 10) {
+        // Long string. Just show the start and end.
+        os << contents.substr(0, 5);
+        os << "[...]";
+        os << contents.substr(contents.size() - 6, 5);
+      } else {
+        os << contents;
+      }
+      os << "' )";
+    }; break;
+    // For other cases, string representation of token type itself
+    // should be sufficient.
+    default: break;
+  }
+
+  return os;
+}
+
+std::ostream &
+operator<<(std::ostream &os, const Token::Type &tokenType)
+{
+  switch (tokenType) {
+    case Token::Type::LPEREN:    os << "LPEREN"; break;
+    case Token::Type::RPEREN:    os << "RPEREN"; break;
+    case Token::Type::LBRACE:    os << "LBRACE"; break;
+    case Token::Type::RBRACE:    os << "RBRACE"; break;
+    case Token::Type::COMMA:     os << "COMMA"; break;
+    case Token::Type::DOT:       os << "DOT"; break;
+    case Token::Type::MINUS:     os << "MINUS"; break;
+    case Token::Type::PLUS:      os << "PLUS"; break;
+    case Token::Type::SEMICOLON: os << "SEMICOLON"; break;
+    case Token::Type::SLASH:     os << "SLASH"; break;
+    case Token::Type::STAR:      os << "STAR"; break;
+    case Token::Type::BANG:      os << "BANG"; break;
+    case Token::Type::BANG_EQ:   os << "BANG_EQ"; break;
+    case Token::Type::EQ:        os << "EQ"; break;
+    case Token::Type::EQ_EQ:     os << "EQ_EQ"; break;
+    case Token::Type::GT:        os << "GT"; break;
+    case Token::Type::GT_EQ:     os << "GT_EQ"; break;
+    case Token::Type::LT:        os << "LT"; break;
+    case Token::Type::LT_EQ:     os << "LT_EQ"; break;
+    case Token::Type::AND:       os << "AND"; break;
+    case Token::Type::CLASS:     os << "CLASS"; break;
+    case Token::Type::ELSE:      os << "ELSE"; break;
+    case Token::Type::TRUE:      os << "TRUE"; break;
+    case Token::Type::FALSE:     os << "FALSE"; break;
+    case Token::Type::FUN:       os << "FUN"; break;
+    case Token::Type::FOR:       os << "FOR"; break;
+    case Token::Type::IF:        os << "IF"; break;
+    case Token::Type::NIL:       os << "NIL"; break;
+    case Token::Type::OR:        os << "OR"; break;
+    case Token::Type::PRINT:     os << "PRINT"; break;
+    case Token::Type::RETURN:    os << "RETURN"; break;
+    case Token::Type::SUPER:     os << "SUPER"; break;
+    case Token::Type::THIS:      os << "THIS"; break;
+    case Token::Type::VAR:       os << "VAR"; break;
+    case Token::Type::WHILE:     os << "WHILE"; break;
+    case Token::Type::ID:        os << "ID"; break;
+    case Token::Type::STR:       os << "STR"; break;
+    case Token::Type::NUM:       os << "NUM"; break;
+    case Token::Type::EOFF:      os << "EOF"; break;
+  }
+
+  switch (tokenType) {
+    case Token::Type::LPEREN:    os << "( '(' )"; break;
+    case Token::Type::RPEREN:    os << "( ')' ))"; break;
+    case Token::Type::LBRACE:    os << "( '{' )"; break;
+    case Token::Type::RBRACE:    os << "( '}' )}"; break;
+    case Token::Type::COMMA:     os << "( ',' )"; break;
+    case Token::Type::DOT:       os << "( '.' )"; break;
+    case Token::Type::MINUS:     os << "( '-' )"; break;
+    case Token::Type::PLUS:      os << "( '+' )"; break;
+    case Token::Type::SEMICOLON: os << "( ';' )"; break;
+    case Token::Type::SLASH:     os << "( '/' )"; break;
+    case Token::Type::STAR:      os << "( '*' )"; break;
+    case Token::Type::BANG:      os << "( '!' )"; break;
+    case Token::Type::BANG_EQ:   os << "( '!' )="; break;
+    case Token::Type::EQ:        os << "( '=' )"; break;
+    case Token::Type::EQ_EQ:     os << "( '=' )="; break;
+    case Token::Type::GT:        os << "( '>' )"; break;
+    case Token::Type::GT_EQ:     os << "( '>' )="; break;
+    case Token::Type::LT:        os << "( '<' )"; break;
+    case Token::Type::LT_EQ:     os << "( '<' )="; break;
+    case Token::Type::AND:       os << "( 'and' )"; break;
+    case Token::Type::CLASS:     os << "( 'class' )"; break;
+    case Token::Type::ELSE:      os << "( 'else' )"; break;
+    case Token::Type::TRUE:      os << "( 'true' )"; break;
+    case Token::Type::FALSE:     os << "( 'false' )"; break;
+    case Token::Type::FUN:       os << "( 'fun' )"; break;
+    case Token::Type::FOR:       os << "( 'for' )"; break;
+    case Token::Type::IF:        os << "( 'if' )"; break;
+    case Token::Type::NIL:       os << "( 'nil' )"; break;
+    case Token::Type::OR:        os << "( 'or' )"; break;
+    case Token::Type::PRINT:     os << "( 'print' )"; break;
+    case Token::Type::RETURN:    os << "( 'return' )"; break;
+    case Token::Type::SUPER:     os << "( 'super' )"; break;
+    case Token::Type::THIS:      os << "( 'this' )"; break;
+    case Token::Type::VAR:       os << "( 'var' )"; break;
+    case Token::Type::WHILE:     os << "( 'while' )"; break;
+    // For the other cases, either there is no literal string
+    // representation (EOF) or there are multiple (identifiers,
+    // strings, etc.). If you want to print one of these tokens,
+    // use the token ostream operator instead, which will also
+    // output the captured contents for that token.
+    default: break;
+  }
+
+  return os;
+}
+
 /// Lexer
 
 Lexer::Lexer() =default;
