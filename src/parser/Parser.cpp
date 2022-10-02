@@ -12,6 +12,7 @@
 using lexer::Token;
 using ast::BinOp;
 using ast::UnaryOp;
+using ast::Expr;
 
 // Ideally this would be more descriptive but it should not happen anyway...
 #define DEFAULT_SWITCH_CASE default: throw std::runtime_error("Unexpected token type in mapping function.");
@@ -24,7 +25,7 @@ constexpr auto ERROR_TAG = "Parser";
 
 namespace parser {
 
-ast::Expr
+Expr
 Parser::parse(std::vector<Token> tokens)
 {
   current_ = -1;
@@ -35,13 +36,13 @@ Parser::parse(std::vector<Token> tokens)
   return expression();
 }
 
-ast::Expr
+Expr
 Parser::expression()
 {
   return equality();
 }
 
-ast::Expr
+Expr
 Parser::equality()
 {
   // Instead of defining these mapping functions everywhere, it would probably be better to have one mapping function
@@ -57,7 +58,7 @@ Parser::equality()
   return createBinOp(mappingFunc, [this] { return comparison(); }, Token::Type::EQ_EQ, Token::Type::BANG_EQ);
 }
 
-ast::Expr
+Expr
 Parser::comparison()
 {
   const auto mappingFunc = [](Token::Type lexerToken) {
@@ -80,7 +81,7 @@ Parser::comparison()
   );
 }
 
-ast::Expr
+Expr
 Parser::term()
 {
   const auto mappingFunc = [](Token::Type lexerToken) {
@@ -94,7 +95,7 @@ Parser::term()
   return createBinOp(mappingFunc, [this] { return factor(); }, Token::Type::MINUS, Token::Type::PLUS);
 }
 
-ast::Expr
+Expr
 Parser::factor()
 {
   const auto mappingFunc = [](Token::Type lexerToken) {
@@ -108,7 +109,7 @@ Parser::factor()
   return createBinOp(mappingFunc, [this] { return unary(); }, Token::Type::SLASH, Token::Type::STAR);
 }
 
-ast::Expr
+Expr
 Parser::unary()
 {
   if (auto op = match(Token::Type::BANG, Token::Type::MINUS)) {
@@ -124,7 +125,7 @@ Parser::unary()
     return std::make_unique<
       UnaryOp,
       UnaryOp::Op,
-      ast::Expr,
+      Expr,
       size_t
     >(
       std::move(op2),
@@ -136,7 +137,7 @@ Parser::unary()
   }
 }
 
-ast::Expr
+Expr
 Parser::primary()
 {
   if (auto op = match(Token::Type::NUM)) {
@@ -246,12 +247,12 @@ Parser::expect(T &&... tokenTypes)
 }
 
 template <class BinOpMapFunc, class SubExprFunc, class... Ts>
-ast::Expr
+Expr
 Parser::createBinOp(const BinOpMapFunc &map, const SubExprFunc &subExpr, Ts &&... tokenTypes)
 {
-  ast::Expr lhs = subExpr();
+  Expr lhs = subExpr();
   while (auto op = match(std::forward<Ts>(tokenTypes)...)) {
-    ast::Expr rhs = subExpr();
+    Expr rhs = subExpr();
     ast::BinOp::Op op2 = map(op->get().getType());
     // Unfortunately we can't use the factory functions easily here because a different
     // function needs to be called depending on the op of the lexer token, which we must
@@ -261,9 +262,9 @@ Parser::createBinOp(const BinOpMapFunc &map, const SubExprFunc &subExpr, Ts &&..
     // functions could call those).
     lhs = std::make_unique<
       ast::BinOp,
-      ast::Expr,
+      Expr,
       ast::BinOp::Op,
-      ast::Expr,
+      Expr,
       size_t
     >(
       std::move(lhs),
