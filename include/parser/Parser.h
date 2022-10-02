@@ -30,6 +30,9 @@ private:
   template <class BinOpMapFunc, class SubExprFunc, class... Ts>
   ast::Expr createBinOp(const BinOpMapFunc &, const SubExprFunc &, Ts &&...);
 
+  // Helpers for error reporting.
+  double textToDouble(const std::string &);
+
   // Methods for non-terminals in the grammar.
   ast::Expr expression();
   ast::Expr equality();

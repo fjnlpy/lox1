@@ -30,6 +30,8 @@ Parser::parse(std::vector<Token> tokens)
   current_ = -1;
   tokens_ = std::move(tokens);
  
+  // Exceptions flow out of here if parsing fails. Once we add statements, there will be
+  // some kind of error recovery & error accumulation here, like in the lexer.
   return expression();
 }
 
@@ -139,8 +141,43 @@ Parser::primary()
 {
   if (auto op = match(Token::Type::NUM)) {
     auto numText = op->get().getContents();
-    auto numDouble = std::stod(numText); // TODO: catch exceptions and throw my own ones
+    auto numDouble = textToDouble(numText);
     return ast::num(std::move(numDouble));
+  } else if (auto op = match(Token::Type::STR)) {
+    // Unfortunately we need to copy this string because Tokens are immutable so we can't move
+    // from them. It's kind of silly because we won't need the tokens after parsing is done
+    // (in fact they are copied when we enter the parser, and it's expected that users will
+    // move their vector of tokens in). We could have something more similar to value semantics
+    // by popping tokens off of the token list when they are being consumed. Then we would
+    // have ownership of them and could genuinely move from them (e.g. could have an overload
+    // on getContents for rvalues that moves its string out by value, avoiding the copy).
+    // However it's nice that progressing the tokens is just done with an index because it's so
+    // easy to refer to the current token, because it's alive in the list. I wonder if that is
+    // even needed though -- is it sufficient just to return the string?
+    // Another point is that progressing with an index lets us easily rewind during "panic mode".
+    auto string = op->get().getContents();
+    return ast::string(std::move(string));
+  } else if (auto op = match(Token::Type::TRUE)) {
+    ASSERT(op->get().getContents() == "true");
+    return ast::truee();
+  } else if (auto op = match(Token::Type::FALSE)) {
+    return ast::falsee();
+  } else if (auto op = match(Token::Type::NIL)) {
+    return ast::nil();
+  } else if (auto op = match(Token::Type::LPEREN)) {
+    auto child = expression();
+    expect(Token::Type::RPEREN);
+    return ast::grouping(std::move(child));
+  } else {
+    // Since none of the above cases matched, this should fail with a nice
+    // error message.
+    expect(
+      Token::Type::NUM, Token::Type::STR, Token::Type::TRUE, Token::Type::FALSE, Token::Type::NIL, Token::Type::LPEREN
+    );
+    // Just to make it compile -- the call above should throw anyway.
+    // Would be better to make a helper that constructs the appropriate error message and throws it,
+    // instead of relying on the call above. Can use `[[noreturn]]` to indicate that a function always throws.
+    throw std::runtime_error("Unexpected token.");
   }
 }
 
@@ -236,6 +273,24 @@ Parser::createBinOp(const BinOpMapFunc &map, const SubExprFunc &subExpr, Ts &&..
     );
   }
   return lhs;
+}
+
+double
+Parser::textToDouble(const std::string &text)
+{
+  try {
+    return std::stod(text);
+  } catch (const std::invalid_argument &e) {
+    const auto &currentToken = current();
+    std::stringstream stream;
+    stream << "Unable to parse number into double-precision floating point. ";
+    stream << "Internal error: " << e.what();
+    throw CompileError(currentToken.getLineNumber(), ERROR_TAG, stream.str(), text);
+  } catch (const std::out_of_range &e) {
+    const auto &currentToken = current();
+    constexpr auto message = "Number is out of range of double-precision floating point, so cannot be represented.";
+    throw CompileError(currentToken.getLineNumber(), ERROR_TAG, message, text);
+  }
 }
 
 }
