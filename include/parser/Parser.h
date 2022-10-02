@@ -24,6 +24,7 @@ private:
   const lexer::Token &advance();
   template <class... T> bool peek(T &&...);
   template <class... T> std::optional<std::reference_wrapper<const lexer::Token>> match(T &&...);
+  template <class... T> const lexer::Token &expect(T &&...);
 
   // Helpers for parsing grammar structures into specific AST nodes.
   template <class BinOpMapFunc, class SubExprFunc, class... Ts>

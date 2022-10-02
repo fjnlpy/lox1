@@ -3,7 +3,9 @@
 #include <memory>
 #include <exception>
 #include <string>
+#include <sstream>
 
+#include "utils/Error.hpp"
 #include "utils/Counter.hpp"
 #include "utils/Assert.hpp"
 
@@ -13,6 +15,12 @@ using ast::UnaryOp;
 
 // Ideally this would be more descriptive but it should not happen anyway...
 #define DEFAULT_SWITCH_CASE default: throw std::runtime_error("Unexpected token type in mapping function.");
+
+namespace {
+
+constexpr auto ERROR_TAG = "Parser";
+
+}
 
 namespace parser {
 
@@ -171,6 +179,33 @@ Parser::match(T &&... tokenTypes)
   } else {
     return std::nullopt;
   }
+}
+
+template <class... T>
+const lexer::Token &
+Parser::expect(T &&... tokenTypes)
+{
+  if (current_ + 1 >= tokens_.size() || peek(Token::Type::EOFF)) {
+    std::stringstream message;
+    message << "Unexpected end of file during parsing. Expected one of: ";
+    ((message << std::forward<T>(tokenTypes) << ", "), ...);
+    throw CompileError(current().getLineNumber(), ERROR_TAG, message.str(), "");
+  }
+
+  const auto &nextToken = tokens_[current_ + 1];
+  // True if the next token matches any of the parameters.
+  if (((nextToken.getType() == tokenTypes) || ...)) {
+    return nextToken;
+  }
+
+  std::stringstream message;
+  message << "Unexpected token ";
+  message << nextToken;
+  message << ". Expected one of: ";
+  // I think this leaves a trailing comma on the end.
+  // Not ideal but I'm not sure how else to do it.
+  ((message << std::forward<T>(tokenTypes) << ", "), ...);
+  throw CompileError(nextToken.getLineNumber(), ERROR_TAG, message.str(), "");
 }
 
 template <class BinOpMapFunc, class SubExprFunc, class... Ts>
