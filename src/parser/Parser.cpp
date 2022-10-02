@@ -159,7 +159,6 @@ Parser::primary()
     auto string = op->get().getContents();
     return ast::string(std::move(string));
   } else if (auto op = match(Token::Type::TRUE)) {
-    ASSERT(op->get().getContents() == "true");
     return ast::truee();
   } else if (auto op = match(Token::Type::FALSE)) {
     return ast::falsee();
