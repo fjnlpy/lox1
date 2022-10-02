@@ -35,6 +35,33 @@ isIdentifierChar(char c)
   return c == '_' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
+void
+printContents(std::ostream &os, const std::string &contents, bool useDoubleQuotes)
+{
+  os << "( ";
+  if (useDoubleQuotes) {
+    os << "\"";
+  } else {
+    os << "'";
+  }
+
+  if (contents.size() > 10) {
+    // Long string. Just show the start and end.
+    os << contents.substr(0, 5);
+    os << "[...]";
+    os << contents.substr(contents.size() - 6, 5);
+  } else {
+    os << contents;
+  }
+
+  if (useDoubleQuotes) {
+    os << "\"";
+  } else {
+    os << "'";
+  }
+  os << " )";
+}
+
 }
 
 namespace lexer {
@@ -86,19 +113,11 @@ operator<<(std::ostream &os, const Token &token)
   os << token.getType();
   switch (token.getType()) {
     case Token::Type::ID:
-    case Token::Type::NUM: {
-      const auto &contents = token.getContents();
-      os << "( '";
-      if (contents.size() > 10) {
-        // Long string. Just show the start and end.
-        os << contents.substr(0, 5);
-        os << "[...]";
-        os << contents.substr(contents.size() - 6, 5);
-      } else {
-        os << contents;
-      }
-      os << "' )";
-    }; break;
+    case Token::Type::NUM:
+      printContents(os, token.getContents(), false); break;
+    case Token::Type::STR:
+      printContents(os, token.getContents(), true); break;
+
     // For other cases, string representation of token type itself
     // should be sufficient.
     default: break;
