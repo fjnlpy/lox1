@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utility>
-#include <string>
 #include <memory>
+#include <string>
+#include <utility>
 #include <variant>
 
 #include "utils/Counter.hpp"
@@ -19,15 +19,24 @@ class Truee;
 class Falsee;
 class Nil;
 
+using BinOpPtr = std::unique_ptr<BinOp>;
+using UnaryOpPtr = std::unique_ptr<UnaryOp>;
+using StringPtr = std::unique_ptr<String>;
+using NumPtr = std::unique_ptr<Num>;
+using GroupingPtr = std::unique_ptr<Grouping>;
+using TrueePtr = std::unique_ptr<Truee>;
+using FalseePtr = std::unique_ptr<Falsee>;
+using NilPtr = std::unique_ptr<Nil>;
+
 using Expr = std::variant<
-  std::unique_ptr<BinOp>,
-  std::unique_ptr<UnaryOp>,
-  std::unique_ptr<String>,
-  std::unique_ptr<Num>,
-  std::unique_ptr<Grouping>,
-  std::unique_ptr<Truee>,
-  std::unique_ptr<Falsee>,
-  std::unique_ptr<Nil>
+  BinOpPtr,
+  UnaryOpPtr,
+  StringPtr,
+  NumPtr,
+  GroupingPtr,
+  TrueePtr,
+  FalseePtr,
+  NilPtr
 >;
 
 
@@ -176,7 +185,7 @@ private:
   size_t id_;
 };
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline mult(
   Expr &&lhs,
   Expr &&rhs
@@ -196,7 +205,7 @@ inline mult(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline div(
   Expr &&lhs,
   Expr &&rhs
@@ -216,7 +225,7 @@ inline div(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline add(
   Expr &&lhs,
   Expr &&rhs
@@ -236,7 +245,7 @@ inline add(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline sub(
   Expr &&lhs,
   Expr &&rhs
@@ -256,7 +265,7 @@ inline sub(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline gtEq(
   Expr &&lhs,
   Expr &&rhs
@@ -276,7 +285,7 @@ inline gtEq(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline gt(
   Expr &&lhs,
   Expr &&rhs
@@ -296,7 +305,7 @@ inline gt(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline ltEq(
   Expr &&lhs,
   Expr &&rhs
@@ -316,7 +325,7 @@ inline ltEq(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline lt(
   Expr &&lhs,
   Expr &&rhs
@@ -336,7 +345,7 @@ inline lt(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline eq(
   Expr &&lhs,
   Expr &&rhs
@@ -356,7 +365,7 @@ inline eq(
 }
 
 
-std::unique_ptr<BinOp>
+BinOpPtr
 inline neq(
   Expr &&lhs,
   Expr &&rhs
@@ -376,7 +385,7 @@ inline neq(
 }
 
 
-std::unique_ptr<UnaryOp>
+UnaryOpPtr
 inline negate(
   Expr &&child
 ) {
@@ -393,7 +402,7 @@ inline negate(
 }
 
 
-std::unique_ptr<UnaryOp>
+UnaryOpPtr
 inline nott(
   Expr &&child
 ) {
@@ -410,7 +419,7 @@ inline nott(
 }
 
 
-std::unique_ptr<String>
+StringPtr
 inline string(
   std::string &&value
 ) {
@@ -425,7 +434,7 @@ inline string(
 }
 
 
-std::unique_ptr<Num>
+NumPtr
 inline num(
   double &&value
 ) {
@@ -440,7 +449,7 @@ inline num(
 }
 
 
-std::unique_ptr<Grouping>
+GroupingPtr
 inline grouping(
   Expr &&child
 ) {
@@ -455,7 +464,7 @@ inline grouping(
 }
 
 
-std::unique_ptr<Truee>
+TrueePtr
 inline truee(
 
 ) {
@@ -468,7 +477,7 @@ inline truee(
 }
 
 
-std::unique_ptr<Falsee>
+FalseePtr
 inline falsee(
 
 ) {
@@ -481,7 +490,7 @@ inline falsee(
 }
 
 
-std::unique_ptr<Nil>
+NilPtr
 inline nil(
 
 ) {
