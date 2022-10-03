@@ -63,7 +63,7 @@ def make_includes_snippet(includes_for_ast):
   # plus includes used by the AST nodes themselves.
   known_includes = [ "<variant>", "<memory>", "<utility>" ]
   system_includes, project_includes = [], []
-  for include in set(known_includes + includes_for_ast):
+  for include in sorted(set(known_includes + includes_for_ast)):
     if include[0] == "<":
       system_includes.append(include)
     else:
