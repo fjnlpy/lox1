@@ -34,6 +34,7 @@ def emit(classes, output_dir):
 
     forward_decls_snippet = make_forward_decls_snippet(subclass_names) # needed because variant refers to the subclasses
     includes_snippet = make_includes_snippet(classes["includesForAst"])
+    using_decls_snippet = make_using_decls_snippet(subclass_names)
     variant_snippet = make_variant_snippet(base_class, subclass_names)
     subclasses_snippet = make_subclasses_snippet(classes["subClasses"].items())
     factory_funs_snippet = make_factory_funs_snippet(classes["subClasses"].items(), classes["autoProvidedDefs"])
@@ -43,7 +44,14 @@ def emit(classes, output_dir):
       "#pragma once\n" +
       includes_snippet + "\n" +
       "namespace ast {\n" +
-      "".join([forward_decls_snippet, variant_snippet, subclasses_snippet, factory_funs_snippet, visitor_snippet]) +
+      "".join([
+          forward_decls_snippet,
+          using_decls_snippet,
+          variant_snippet,
+          subclasses_snippet,
+          factory_funs_snippet,
+          visitor_snippet
+        ]) +
       "}\n"
     )
 
@@ -95,11 +103,14 @@ public:
 
   return top + "\n".join(subclass_methods) + visit_method + "\n};\n"
 
+def make_using_decls_snippet(subclasses):
+  return "\n" + "\n".join([f"using {name}Ptr = std::unique_ptr<{name}>;" for name in subclasses]) + "\n"
+
 def make_variant_snippet(base_class, subclasses):
   top =  f"""
 using {base_class} = std::variant<
 """
-  lines = ",\n".join(map(lambda s: f"  std::unique_ptr<{s}>", subclasses))
+  lines = ",\n".join(map(lambda s: f"  {s}Ptr", subclasses))
   return top + lines + "\n>;\n"
 
 def make_forward_decls_snippet(subclass_names):
@@ -183,7 +194,7 @@ def make_factory_funs_snippet(subclasses, auto_provided_defs):
     forwards = ",\n".join(forwards)
 
     return f"""
-std::unique_ptr<{class_type}>
+{class_type}Ptr
 inline {name}(
 {arguments}
 ) {{
