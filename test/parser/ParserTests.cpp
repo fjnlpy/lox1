@@ -65,7 +65,7 @@ TEST(ParserTests, TestPrimaryExpression) {
 TEST(ParserTests, TestOperatorPrecedence) {
   parser::Parser parser;
 
-  auto expr = parser.parse({
+  Expr actual = parser.parse({
     Token(Token::Type::NUM, 1, "1"),
     Token(Token::Type::PLUS, 1, ""),
     Token(Token::Type::NUM, 1, "2"),
@@ -75,14 +75,16 @@ TEST(ParserTests, TestOperatorPrecedence) {
     Token(Token::Type::NUM, 1, "4")
   });
 
-  // TODO: make a helper for asserting same. Just run the pretty printer
-  // on both (since it's deterministic and has unique output (except fp rounding)
-  // for unique tree). Probably comment that it's not exactly ideal though,
-  // but fine for our current purposes.
+  Expr expected = add(add(num(1), mult(num(2), num(3))), num(4));
+
+  assertProbablyTheSame(actual, expected);
 }
 
 TEST(ParserTests, TestTrailingBinOp) {
-
+  assertDoesNotCompile({
+    Token(Token::Type::NUM, 1, "1"),
+    Token(Token::Type::EQ_EQ, 1, ""),
+  });
 }
 
 TEST(ParserTests, TestGrouping) {
