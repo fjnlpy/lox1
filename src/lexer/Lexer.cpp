@@ -172,41 +172,41 @@ operator<<(std::ostream &os, const Token::Type &tokenType)
   }
 
   switch (tokenType) {
-    case Token::Type::LPEREN:    os << "( '(' )"; break;
-    case Token::Type::RPEREN:    os << "( ')' )"; break;
-    case Token::Type::LBRACE:    os << "( '{' )"; break;
-    case Token::Type::RBRACE:    os << "( '}' )"; break;
-    case Token::Type::COMMA:     os << "( ',' )"; break;
-    case Token::Type::DOT:       os << "( '.' )"; break;
-    case Token::Type::MINUS:     os << "( '-' )"; break;
-    case Token::Type::PLUS:      os << "( '+' )"; break;
-    case Token::Type::SEMICOLON: os << "( ';' )"; break;
-    case Token::Type::SLASH:     os << "( '/' )"; break;
-    case Token::Type::STAR:      os << "( '*' )"; break;
-    case Token::Type::BANG:      os << "( '!' )"; break;
-    case Token::Type::BANG_EQ:   os << "( '!' )"; break;
-    case Token::Type::EQ:        os << "( '=' )"; break;
-    case Token::Type::EQ_EQ:     os << "( '=' )"; break;
-    case Token::Type::GT:        os << "( '>' )"; break;
-    case Token::Type::GT_EQ:     os << "( '>' )"; break;
-    case Token::Type::LT:        os << "( '<' )"; break;
-    case Token::Type::LT_EQ:     os << "( '<' )"; break;
-    case Token::Type::AND:       os << "( 'and' )"; break;
-    case Token::Type::CLASS:     os << "( 'class' )"; break;
-    case Token::Type::ELSE:      os << "( 'else' )"; break;
-    case Token::Type::TRUE:      os << "( 'true' )"; break;
-    case Token::Type::FALSE:     os << "( 'false' )"; break;
-    case Token::Type::FUN:       os << "( 'fun' )"; break;
-    case Token::Type::FOR:       os << "( 'for' )"; break;
-    case Token::Type::IF:        os << "( 'if' )"; break;
-    case Token::Type::NIL:       os << "( 'nil' )"; break;
-    case Token::Type::OR:        os << "( 'or' )"; break;
-    case Token::Type::PRINT:     os << "( 'print' )"; break;
-    case Token::Type::RETURN:    os << "( 'return' )"; break;
-    case Token::Type::SUPER:     os << "( 'super' )"; break;
-    case Token::Type::THIS:      os << "( 'this' )"; break;
-    case Token::Type::VAR:       os << "( 'var' )"; break;
-    case Token::Type::WHILE:     os << "( 'while' )"; break;
+    case Token::Type::LPEREN:    os << "('(')"; break;
+    case Token::Type::RPEREN:    os << "(')')"; break;
+    case Token::Type::LBRACE:    os << "('{')"; break;
+    case Token::Type::RBRACE:    os << "('}')"; break;
+    case Token::Type::COMMA:     os << "(',')"; break;
+    case Token::Type::DOT:       os << "('.')"; break;
+    case Token::Type::MINUS:     os << "('-')"; break;
+    case Token::Type::PLUS:      os << "('+')"; break;
+    case Token::Type::SEMICOLON: os << "(';')"; break;
+    case Token::Type::SLASH:     os << "('/')"; break;
+    case Token::Type::STAR:      os << "('*')"; break;
+    case Token::Type::BANG:      os << "('!')"; break;
+    case Token::Type::BANG_EQ:   os << "('!')"; break;
+    case Token::Type::EQ:        os << "('=')"; break;
+    case Token::Type::EQ_EQ:     os << "('=')"; break;
+    case Token::Type::GT:        os << "('>')"; break;
+    case Token::Type::GT_EQ:     os << "('>')"; break;
+    case Token::Type::LT:        os << "('<')"; break;
+    case Token::Type::LT_EQ:     os << "('<')"; break;
+    case Token::Type::AND:       os << "('and')"; break;
+    case Token::Type::CLASS:     os << "('class')"; break;
+    case Token::Type::ELSE:      os << "('else')"; break;
+    case Token::Type::TRUE:      os << "('true')"; break;
+    case Token::Type::FALSE:     os << "('false')"; break;
+    case Token::Type::FUN:       os << "('fun')"; break;
+    case Token::Type::FOR:       os << "('for')"; break;
+    case Token::Type::IF:        os << "('if')"; break;
+    case Token::Type::NIL:       os << "('nil')"; break;
+    case Token::Type::OR:        os << "('or')"; break;
+    case Token::Type::PRINT:     os << "('print')"; break;
+    case Token::Type::RETURN:    os << "('return')"; break;
+    case Token::Type::SUPER:     os << "('super')"; break;
+    case Token::Type::THIS:      os << "('this')"; break;
+    case Token::Type::VAR:       os << "('var')"; break;
+    case Token::Type::WHILE:     os << "('while')"; break;
     // For the other cases, either there is no literal string
     // representation (EOF) or there are multiple (identifiers,
     // strings, etc.). If you want to print one of these tokens,
