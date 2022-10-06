@@ -173,9 +173,9 @@ operator<<(std::ostream &os, const Token::Type &tokenType)
 
   switch (tokenType) {
     case Token::Type::LPEREN:    os << "( '(' )"; break;
-    case Token::Type::RPEREN:    os << "( ')' ))"; break;
+    case Token::Type::RPEREN:    os << "( ')' )"; break;
     case Token::Type::LBRACE:    os << "( '{' )"; break;
-    case Token::Type::RBRACE:    os << "( '}' )}"; break;
+    case Token::Type::RBRACE:    os << "( '}' )"; break;
     case Token::Type::COMMA:     os << "( ',' )"; break;
     case Token::Type::DOT:       os << "( '.' )"; break;
     case Token::Type::MINUS:     os << "( '-' )"; break;
@@ -184,13 +184,13 @@ operator<<(std::ostream &os, const Token::Type &tokenType)
     case Token::Type::SLASH:     os << "( '/' )"; break;
     case Token::Type::STAR:      os << "( '*' )"; break;
     case Token::Type::BANG:      os << "( '!' )"; break;
-    case Token::Type::BANG_EQ:   os << "( '!' )="; break;
+    case Token::Type::BANG_EQ:   os << "( '!' )"; break;
     case Token::Type::EQ:        os << "( '=' )"; break;
-    case Token::Type::EQ_EQ:     os << "( '=' )="; break;
+    case Token::Type::EQ_EQ:     os << "( '=' )"; break;
     case Token::Type::GT:        os << "( '>' )"; break;
-    case Token::Type::GT_EQ:     os << "( '>' )="; break;
+    case Token::Type::GT_EQ:     os << "( '>' )"; break;
     case Token::Type::LT:        os << "( '<' )"; break;
-    case Token::Type::LT_EQ:     os << "( '<' )="; break;
+    case Token::Type::LT_EQ:     os << "( '<' )"; break;
     case Token::Type::AND:       os << "( 'and' )"; break;
     case Token::Type::CLASS:     os << "( 'class' )"; break;
     case Token::Type::ELSE:      os << "( 'else' )"; break;
