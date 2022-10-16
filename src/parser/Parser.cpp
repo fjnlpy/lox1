@@ -9,13 +9,15 @@
 #include "utils/Counter.hpp"
 #include "utils/Assert.hpp"
 
+// TODO: add source snippets to CompileErrors
+
 using lexer::Token;
 using ast::BinOp;
 using ast::UnaryOp;
 using ast::Expr;
 
 // Ideally this would be more descriptive but it should not happen anyway...
-#define DEFAULT_SWITCH_CASE default: throw std::runtime_error("Unexpected token type in mapping function.");
+#define DEFAULT_SWITCH_CASE default: throw std::runtime_error(std::string("Unexpected token type in mapping function. Line ") + std::to_string(__LINE__));
 
 namespace {
 
