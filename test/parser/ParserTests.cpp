@@ -96,21 +96,108 @@ TEST(ParserTests, TestTrailingBinOp) {
 }
 
 TEST(ParserTests, TestGrouping) {
+  Parser parser;
 
+  Expr actual = parser.parse(
+    {
+      Token(Token::Type::LPEREN, 1, ""),
+      Token(Token::Type::NUM, 1, "1"),
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::NUM, 1, "2"),
+      Token(Token::Type::RPEREN, 1, ""),
+      Token(Token::Type::STAR, 1, ""),
+      Token(Token::Type::NUM, 3, "3"),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
+
+  Expr expected = mult(grouping(sub(num(1), num(2))), num(3));
+
+  assertProbablyTheSame(actual, expected);
 }
 
 TEST(ParserTests, TestUnclosedGroup) {
-
+  assertDoesNotCompile(
+    {
+      Token(Token::Type::NUM, 1, "1"),
+      Token(Token::Type::PLUS, 1, ""),
+      Token(Token::Type::LPEREN, 1, ""),
+      Token(Token::Type::NUM, 1, "2"),
+      Token(Token::Type::PLUS, 1, ""),
+      Token(Token::Type::NUM, 1, "3"),
+      // Missing bracket:
+      //Token(Token::Type::RPEREN, 1, ""),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
 }
 
 TEST(ParserTests, TestNestedUnaryOps) {
+  Parser parser;
 
+  Expr actual = parser.parse(
+    {
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::NUM, 1, "1"),
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::NUM, 1, "2"),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
+
+  Expr expected = sub(negate(num(1)), negate(negate(num(2))));
+
+  assertProbablyTheSame(actual, expected);
 }
 
 TEST(ParserTests, TestLeadingBinOp) {
-
+  assertDoesNotCompile(
+    {
+      Token(Token::Type::SLASH, 1, ""),
+      Token(Token::Type::NUM, 1, "10"),
+      Token(Token::Type::MINUS, 1, ""),
+      Token(Token::Type::NUM, 1, "9"),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
 }
 
 TEST(ParserTests, TestInvalidPrimaryExpression) {
+  assertDoesNotCompile(
+    {
+      Token(Token::Type::NIL, 1, ""),
+      Token(Token::Type::NIL, 1, ""),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
+}
 
+TEST(ParserTests, TestUnsupportedNumber) {
+  assertDoesNotCompile(
+    {
+      // I tried to use a long number here, hoping that the standard library would
+      // complain but it seems to just round the number to the closest thing
+      // it can represent. I'm not sure if that's always the case or if it's
+      // platform-specific, so I think it's good to have code in the parser for
+      // catching and forwarding the exceptions that the STL throws.
+      // And we need to test it somehow so just throw some junk in -- this should
+      // never get past the lexer in the first place.
+      Token(Token::Type::NUM, 1, "thisisnotanumber"),
+      Token(Token::Type::EOFF, 1, "")
+    }
+  );
+}
+
+TEST(ParserTests, TestEOFNotEndOfProgram) {
+  assertDoesNotCompile(
+    {
+      Token(Token::Type::NUM, 1, "1"),
+      Token(Token::Type::EOFF, 1, ""), // This EOF should cause problems.
+      Token(Token::Type::PLUS, 1, ""),
+      Token(Token::Type::NUM, 1, "1"),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
 }
