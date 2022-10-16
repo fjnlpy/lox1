@@ -58,7 +58,12 @@ assertDoesNotCompile(const std::vector<Token> &tokens)
 TEST(ParserTests, TestPrimaryExpression) {
   Parser parser;
 
-  auto expr = parser.parse({Token(Token::Type::STR, 1, "hello")});
+  auto expr = parser.parse(
+    {
+      Token(Token::Type::STR, 1, "hello"),
+      Token(Token::Type::EOFF, 1, ""),
+    }
+  );
 
   ASSERT_EQ("hello", std::get<ast::StringPtr>(expr)->value());
 }
@@ -73,7 +78,8 @@ TEST(ParserTests, TestOperatorPrecedence) {
     Token(Token::Type::STAR, 1, ""),
     Token(Token::Type::NUM, 1, "3"),
     Token(Token::Type::PLUS, 1, ""),
-    Token(Token::Type::NUM, 1, "4")
+    Token(Token::Type::NUM, 1, "4"),
+    Token(Token::Type::EOFF, 1, ""),
   });
 
   Expr expected = add(add(num(1), mult(num(2), num(3))), num(4));
@@ -85,6 +91,7 @@ TEST(ParserTests, TestTrailingBinOp) {
   assertDoesNotCompile({
     Token(Token::Type::NUM, 1, "1"),
     Token(Token::Type::EQ_EQ, 1, ""),
+    Token(Token::Type::EOFF, 1, ""),
   });
 }
 

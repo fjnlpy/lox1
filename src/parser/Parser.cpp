@@ -35,7 +35,23 @@ Parser::parse(std::vector<Token> tokens)
  
   // Exceptions flow out of here if parsing fails. Once we add statements, there will be
   // some kind of error recovery & error accumulation here, like in the lexer.
-  return expression();
+  auto expr = expression();
+
+  // Expect that we are pointing at the last non-eof token, and the next (and last)
+  // token is eof.
+  const auto isParsingSuccessful =
+    current_ == tokens_.size() - 2 && tokens_[tokens_.size() - 1].getType() == Token::Type::EOFF;
+  if (!isParsingSuccessful) {
+    std::optional<Token> currentOrNull = current_ < tokens_.size() ? std::optional(current()) : std::nullopt;
+    throw CompileError(
+      (currentOrNull ? currentOrNull->getLineNumber() : -1),
+      ERROR_TAG,
+      "Expected end of program but there were more tokens remaining.",
+      (currentOrNull ? currentOrNull->getContents() : "")
+    );
+  }
+
+  return expr;
 }
 
 Expr
