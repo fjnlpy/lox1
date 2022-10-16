@@ -232,6 +232,7 @@ Parser::expect(T &&... tokenTypes)
   const auto &nextToken = tokens_[current_ + 1];
   // True if the next token matches any of the parameters.
   if (((nextToken.getType() == tokenTypes) || ...)) {
+    advance();
     return nextToken;
   }
 
