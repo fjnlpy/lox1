@@ -8,6 +8,7 @@
 #include "visit/PrettyPrinter.hpp"
 
 using lexer::Token;
+using parser::Parser;
 using namespace ast;
 
 namespace {
@@ -30,7 +31,7 @@ assertProbablyTheSame(Expr &e1, Expr &e2)
 void
 assertDoesNotCompile(const std::vector<Token> &tokens)
 {
-  parser::Parser parser;
+  Parser parser;
   try {
     parser.parse(tokens);
 
@@ -55,7 +56,7 @@ assertDoesNotCompile(const std::vector<Token> &tokens)
 }
 
 TEST(ParserTests, TestPrimaryExpression) {
-  parser::Parser parser;
+  Parser parser;
 
   auto expr = parser.parse({Token(Token::Type::STR, 1, "hello")});
 
@@ -63,7 +64,7 @@ TEST(ParserTests, TestPrimaryExpression) {
 }
 
 TEST(ParserTests, TestOperatorPrecedence) {
-  parser::Parser parser;
+  Parser parser;
 
   Expr actual = parser.parse({
     Token(Token::Type::NUM, 1, "1"),
