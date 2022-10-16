@@ -119,8 +119,8 @@ Parser::unary()
 
     UnaryOp::Op op2;
     switch (op->get().getType()) {
-      case Token::Type::BANG: op2 = UnaryOp::Op::Nott;
-      case Token::Type::MINUS: op2 = UnaryOp::Op::Negate;
+      case Token::Type::BANG: op2 = UnaryOp::Op::Nott; break;
+      case Token::Type::MINUS: op2 = UnaryOp::Op::Negate; break;
       DEFAULT_SWITCH_CASE
     }
 
