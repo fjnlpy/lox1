@@ -38,7 +38,7 @@ isIdentifierChar(char c)
 void
 printContents(std::ostream &os, const std::string &contents, bool useDoubleQuotes)
 {
-  os << "( ";
+  os << "(";
   if (useDoubleQuotes) {
     os << "\"";
   } else {
@@ -59,7 +59,7 @@ printContents(std::ostream &os, const std::string &contents, bool useDoubleQuote
   } else {
     os << "'";
   }
-  os << " )";
+  os << ")";
 }
 
 }
