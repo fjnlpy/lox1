@@ -556,4 +556,35 @@ public:
   }
 
 };
+
+template <class T>
+class ConstVisitor {
+public:
+  virtual ~ConstVisitor() =default;
+
+  virtual T visitBinOp(const BinOp &binOp) =0;
+  virtual T visitUnaryOp(const UnaryOp &unaryOp) =0;
+  virtual T visitString(const String &string) =0;
+  virtual T visitNum(const Num &num) =0;
+  virtual T visitGrouping(const Grouping &grouping) =0;
+  virtual T visitTruee(const Truee &truee) =0;
+  virtual T visitFalsee(const Falsee &falsee) =0;
+  virtual T visitNil(const Nil &nil) =0;
+
+  T operator()(const std::unique_ptr<BinOp> &binOp) { return visitBinOp(*binOp); }
+  T operator()(const std::unique_ptr<UnaryOp> &unaryOp) { return visitUnaryOp(*unaryOp); }
+  T operator()(const std::unique_ptr<String> &string) { return visitString(*string); }
+  T operator()(const std::unique_ptr<Num> &num) { return visitNum(*num); }
+  T operator()(const std::unique_ptr<Grouping> &grouping) { return visitGrouping(*grouping); }
+  T operator()(const std::unique_ptr<Truee> &truee) { return visitTruee(*truee); }
+  T operator()(const std::unique_ptr<Falsee> &falsee) { return visitFalsee(*falsee); }
+  T operator()(const std::unique_ptr<Nil> &nil) { return visitNil(*nil); }
+
+  T
+  visit(const Expr &expr)
+  {
+    return std::visit(*this, expr);
+  }
+
+};
 }

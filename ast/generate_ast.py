@@ -102,7 +102,63 @@ public:
   }}
 """
 
-  return top + "\n".join(operator_methods) + "\n\n" + "\n".join(virtual_methods) + "\n" + visit_method + "\n};\n"
+  non_const_visitor =  (top +
+    "\n".join(operator_methods) +
+    "\n\n" +
+    "\n".join(virtual_methods) +
+    "\n" +
+    visit_method +
+    "\n};\n"
+  )
+
+  const_top = f"""
+template <class T>
+class ConstVisitor {{
+public:
+  virtual ~ConstVisitor() =default;
+
+"""
+
+  const_operator_methods = []
+  const_virtual_methods = []
+  for c in subclass_names:
+    camel_c = to_camel_case(c)
+    const_operator_methods.append(f"  virtual T visit{c}(const {c} &{camel_c}) =0;")
+    # Even though the visitor is const, it still works with pointers to non-const AST nodes,
+    # because it's not easy in cpp to pass a const version of a non-const unique ptr -- it doesn't
+    # have those semantics (although vector does). It's ok because this visitor will still provide a
+    # const-correct interface to its subclasses.
+    const_virtual_methods.append(
+      f"  T operator()(const std::unique_ptr<{c}> &{camel_c}) {{ return visit{c}(*{camel_c}); }}"
+    )
+
+  const_visit_method = f"""
+  T
+  visit(const {base_class} &{camel_base_class})
+  {{
+    return std::visit(*this, {camel_base_class});
+  }}
+"""
+
+  non_const_visitor =  (top +
+    "\n".join(operator_methods) +
+    "\n\n" +
+    "\n".join(virtual_methods) +
+    "\n" +
+    visit_method +
+    "\n};\n"
+  )
+
+  const_visitor =  (const_top +
+    "\n".join(const_operator_methods) +
+    "\n\n" +
+    "\n".join(const_virtual_methods) +
+    "\n" +
+    const_visit_method +
+    "\n};\n"
+  )
+
+  return non_const_visitor + const_visitor
 
 def make_using_decls_snippet(subclasses):
   return "\n" + "\n".join([f"using {name}Ptr = std::unique_ptr<{name}>;" for name in subclasses]) + "\n"

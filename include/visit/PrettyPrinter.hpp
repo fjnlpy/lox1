@@ -8,18 +8,18 @@
 
 namespace visit {
 
-class PrettyPrinter final : ast::Visitor<void> {
+class PrettyPrinter final : ast::ConstVisitor<void> {
 public:
 
   std::string
-  print(ast::Expr &expression)
+  print(const ast::Expr &expression)
   {
     output.clear();
     visit(expression);
     return std::move(output);
   }
 
-  virtual void visitBinOp(ast::BinOp &binOp) override
+  virtual void visitBinOp(const ast::BinOp &binOp) override
   {
     output.append("(");
     switch(binOp.operation()) {
@@ -51,7 +51,7 @@ public:
     output.append(")");
   }
 
-  virtual void visitUnaryOp(ast::UnaryOp &unaryOp) override
+  virtual void visitUnaryOp(const ast::UnaryOp &unaryOp) override
   {
     output.append("(");
     switch(unaryOp.operation()) {
@@ -64,14 +64,14 @@ public:
     output.append(")");
   }
 
-  virtual void visitString(ast::String &string) override
+  virtual void visitString(const ast::String &string) override
   {
     output.append("\"");
     output.append(string.value());
     output.append("\"");
   }
 
-  virtual void visitNum(ast::Num &num) override
+  virtual void visitNum(const ast::Num &num) override
   {
     std::stringstream stream;
     stream.precision(3);
@@ -87,24 +87,24 @@ public:
     output.append(numString);
   }
 
-  virtual void visitGrouping(ast::Grouping &grouping) override
+  virtual void visitGrouping(const ast::Grouping &grouping) override
   {
     output.append("(group ");
     visit(grouping.child());
     output.append(")");
   }
 
-  virtual void visitFalsee(ast::Falsee &f) override
+  virtual void visitFalsee(const ast::Falsee &f) override
   {
     output.append("false");
   }
 
-  virtual void visitTruee(ast::Truee &t) override
+  virtual void visitTruee(const ast::Truee &t) override
   {
     output.append("true");
   }
 
-  virtual void visitNil(ast::Nil &nil) override
+  virtual void visitNil(const ast::Nil &nil) override
   {
     output.append("nil");
   }
