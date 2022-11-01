@@ -126,6 +126,15 @@ def make_subclasses_snippet(subclasses):
   def make_accessor(child):
     return f"  {child[0]} &{child[1]}() {{ return {child[1]}_; }}"
 
+  # Const accessors are used for accessing the tree in a const-safe way from
+  # const visitors.
+  # Note that we return a const reference even for things that could be returned by
+  # value, such as size_ts. This is a bit of a misleading API but makes the tree
+  # easier to generate because the code generator doesn't need to know which types
+  # would usually be passed by value.
+  def make_const_accessor(child):
+      return f"  const {child[0]} &{child[1]}() const {{ return {child[1]}_; }}"
+
   def make_constructor(name, arguments):
     argument_list = ",\n    ".join(map(lambda a: f"{a[0]} {a[1]}", arguments))
     initializers = ",\n    ".join(map(lambda a: f"{a[1]}_(std::move({a[1]}))", arguments))
@@ -146,6 +155,7 @@ def make_subclasses_snippet(subclasses):
     constructor = make_constructor(c, o["children"])
     fields = "\n".join(map(lambda c: f"  {c[0]} {c[1]}_;", o["children"]))
     accessors = "\n".join(map(make_accessor, o["children"]))
+    const_accessors = "\n".join(map(make_const_accessor, o["children"]))
 
     snippets.append(f"""
 class {c} {{
@@ -154,6 +164,8 @@ public:
 {constructor}
 
 {accessors}
+
+{const_accessors}
 
 private:
 {fields}

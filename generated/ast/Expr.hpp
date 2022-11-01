@@ -59,6 +59,11 @@ public:
   Expr &rhs() { return rhs_; }
   size_t &id() { return id_; }
 
+  const Expr &lhs() const { return lhs_; }
+  const Op &operation() const { return operation_; }
+  const Expr &rhs() const { return rhs_; }
+  const size_t &id() const { return id_; }
+
 private:
   Expr lhs_;
   Op operation_;
@@ -83,6 +88,10 @@ public:
   Expr &child() { return child_; }
   size_t &id() { return id_; }
 
+  const Op &operation() const { return operation_; }
+  const Expr &child() const { return child_; }
+  const size_t &id() const { return id_; }
+
 private:
   Op operation_;
   Expr child_;
@@ -102,6 +111,9 @@ public:
   std::string &value() { return value_; }
   size_t &id() { return id_; }
 
+  const std::string &value() const { return value_; }
+  const size_t &id() const { return id_; }
+
 private:
   std::string value_;
   size_t id_;
@@ -119,6 +131,9 @@ public:
 
   double &value() { return value_; }
   size_t &id() { return id_; }
+
+  const double &value() const { return value_; }
+  const size_t &id() const { return id_; }
 
 private:
   double value_;
@@ -138,6 +153,9 @@ public:
   Expr &child() { return child_; }
   size_t &id() { return id_; }
 
+  const Expr &child() const { return child_; }
+  const size_t &id() const { return id_; }
+
 private:
   Expr child_;
   size_t id_;
@@ -153,6 +171,8 @@ public:
 
   size_t &id() { return id_; }
 
+  const size_t &id() const { return id_; }
+
 private:
   size_t id_;
 };
@@ -167,6 +187,8 @@ public:
 
   size_t &id() { return id_; }
 
+  const size_t &id() const { return id_; }
+
 private:
   size_t id_;
 };
@@ -180,6 +202,8 @@ public:
   ): id_(std::move(id)) { }
 
   size_t &id() { return id_; }
+
+  const size_t &id() const { return id_; }
 
 private:
   size_t id_;
