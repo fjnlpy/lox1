@@ -508,27 +508,21 @@ public:
   virtual ~Visitor() =default;
 
   virtual T visitBinOp(BinOp &binOp) =0;
-  T operator()(std::unique_ptr<BinOp> &binOp) { return visitBinOp(*binOp); }
-
   virtual T visitUnaryOp(UnaryOp &unaryOp) =0;
-  T operator()(std::unique_ptr<UnaryOp> &unaryOp) { return visitUnaryOp(*unaryOp); }
-
   virtual T visitString(String &string) =0;
-  T operator()(std::unique_ptr<String> &string) { return visitString(*string); }
-
   virtual T visitNum(Num &num) =0;
-  T operator()(std::unique_ptr<Num> &num) { return visitNum(*num); }
-
   virtual T visitGrouping(Grouping &grouping) =0;
-  T operator()(std::unique_ptr<Grouping> &grouping) { return visitGrouping(*grouping); }
-
   virtual T visitTruee(Truee &truee) =0;
-  T operator()(std::unique_ptr<Truee> &truee) { return visitTruee(*truee); }
-
   virtual T visitFalsee(Falsee &falsee) =0;
-  T operator()(std::unique_ptr<Falsee> &falsee) { return visitFalsee(*falsee); }
-
   virtual T visitNil(Nil &nil) =0;
+
+  T operator()(std::unique_ptr<BinOp> &binOp) { return visitBinOp(*binOp); }
+  T operator()(std::unique_ptr<UnaryOp> &unaryOp) { return visitUnaryOp(*unaryOp); }
+  T operator()(std::unique_ptr<String> &string) { return visitString(*string); }
+  T operator()(std::unique_ptr<Num> &num) { return visitNum(*num); }
+  T operator()(std::unique_ptr<Grouping> &grouping) { return visitGrouping(*grouping); }
+  T operator()(std::unique_ptr<Truee> &truee) { return visitTruee(*truee); }
+  T operator()(std::unique_ptr<Falsee> &falsee) { return visitFalsee(*falsee); }
   T operator()(std::unique_ptr<Nil> &nil) { return visitNil(*nil); }
 
   T

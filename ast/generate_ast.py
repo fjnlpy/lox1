@@ -87,11 +87,12 @@ public:
 
 """
 
-  subclass_methods = []
+  operator_methods = []
+  virtual_methods = []
   for c in subclass_names:
     camel_c = to_camel_case(c)
-    subclass_methods.append(f"  virtual T visit{c}({c} &{camel_c}) =0;")
-    subclass_methods.append(f"  T operator()(std::unique_ptr<{c}> &{camel_c}) {{ return visit{c}(*{camel_c}); }}\n")
+    operator_methods.append(f"  virtual T visit{c}({c} &{camel_c}) =0;")
+    virtual_methods.append(f"  T operator()(std::unique_ptr<{c}> &{camel_c}) {{ return visit{c}(*{camel_c}); }}")
 
   visit_method = f"""
   T
@@ -101,7 +102,7 @@ public:
   }}
 """
 
-  return top + "\n".join(subclass_methods) + visit_method + "\n};\n"
+  return top + "\n".join(operator_methods) + "\n\n" + "\n".join(virtual_methods) + "\n" + visit_method + "\n};\n"
 
 def make_using_decls_snippet(subclasses):
   return "\n" + "\n".join([f"using {name}Ptr = std::unique_ptr<{name}>;" for name in subclasses]) + "\n"
