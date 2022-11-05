@@ -5,8 +5,58 @@
 #include <utility>
 #include <sstream>
 #include <vector>
+#include <string_view>
 
 #include "utils/Assert.hpp"
+
+class SourceReference {
+public:
+  // TODO: refactor out somewhere?
+  using ProgramLines = std::vector<std::string_view>;
+
+  virtual ~SourceReference() =default;
+
+  virtual std::string resolve(const ProgramLines &) const;
+};
+
+class SingleLineReference final : public SourceReference {
+public:
+  unsigned lineNumber_;
+  unsigned columnStart_;
+  unsigned columnEnd_;
+
+  virtual std::string resolve(const ProgramLines &lines) const override
+  {
+    std::string result;
+
+    // TODO: ensure that all lines in `lines` end with a newline.
+    result += lines[lineNumber_];
+
+    // Point out the columns containing the error.
+    result += std::string(columnStart_, '-');
+    result += std::string(columnEnd_ - columnStart_, '^');
+    result += '\n';
+
+    return result;
+  }
+};
+
+class MultilineReference final : public SourceReference {
+public:
+  unsigned lineStart_;
+  unsigned lineEnd_;
+
+  virtual std::string resolve(const ProgramLines &lines) const override
+  {
+    std::string result;
+
+    for (size_t i = lineStart_; i <= lineEnd_; ++i) {
+      result += lines[i];
+    }
+
+    return result;
+  }
+};
 
 class CompileError {
 public:
