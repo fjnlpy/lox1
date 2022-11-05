@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <exception>
 #include <utility>
+#include <functional>
 #include <sstream>
 #include <vector>
 #include <string_view>
@@ -64,16 +66,25 @@ public:
     unsigned lineNumber,
     std::string errorType,
     std::string errorMessage,
-    std::string sourceSnippet
+    std::unique_ptr<const SourceReference> sourceReference
+    // TODO: replace ^ this with a SourceReference thing that has two subclasses:
+    // one taking a single line plus column start and end info, and one taking a start
+    // and ending line. Take a unique ptr to it, since subclassing -- and can pass null for
+    // unit tests, where there is no source code info.
+    // Create this thing during lexing and pass it around into the AST etc.
+    // Then when what()ing the error, call resolve on it, passing the source code (vector of string views?),
+    // and it will grab the correct string, and for the single line case it will add some arrows pointing
+    // to correct columns.
+    // Also will need to extend the code generator a bit to deal with the extra ctor params.
   )
     : lineNumber_(lineNumber)
     , errorType_(std::move(errorType))
     , errorMessage_(std::move(errorMessage))
-    , sourceSnippet_(std::move(sourceSnippet))
+    , sourceReference_(std::move(sourceReference))
   { }
 
   std::string
-  what() const
+  what(std::optional<std::reference_wrapper<const std::vector<std::string_view>>> lines = std::nullopt) const
   {
     std::stringstream stream;
 
@@ -85,8 +96,9 @@ public:
     stream << errorMessage_;
     stream << std::endl;
 
-    stream << sourceSnippet_;
-    stream << std::endl;
+    if (lines && sourceReference_) {
+      stream << sourceReference_->resolve(*lines) << std::endl;
+    }
 
     return stream.str();
   }
@@ -95,7 +107,7 @@ private:
   const unsigned lineNumber_;
   const std::string errorType_;
   const std::string errorMessage_;
-  const std::string sourceSnippet_;
+  const std::unique_ptr<const SourceReference> sourceReference_;
 };
 
 class ErrorCollection {
