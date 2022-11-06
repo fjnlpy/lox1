@@ -20,6 +20,8 @@ public:
   virtual ~SourceReference() =default;
 
   virtual std::string resolve(const ProgramLines &) const;
+
+  virtual unsigned getLineNumber() const;
 };
 
 class SingleLineReference final : public SourceReference {
@@ -47,6 +49,11 @@ public:
     return result;
   }
 
+  virtual unsigned getLineNumber() const override
+  {
+    return lineNumber_;
+  }
+
 private:
   unsigned lineNumber_;
   unsigned columnStart_;
@@ -72,6 +79,12 @@ public:
     return result;
   }
 
+  virtual unsigned getLineNumber() const override
+  {
+    // There are many line numbers. The first one is Good enough...
+    return lineStart_;
+  }
+
 private:
   unsigned lineStart_;
   unsigned lineEnd_;
@@ -80,7 +93,6 @@ private:
 class CompileError {
 public:
   CompileError(
-    unsigned lineNumber,
     std::string errorType,
     std::string errorMessage,
     std::unique_ptr<const SourceReference> sourceReference
@@ -94,10 +106,7 @@ public:
     // to correct columns.
     // Also will need to extend the code generator a bit to deal with the extra ctor params.
   )
-    : lineNumber_(lineNumber)
-    , errorType_(std::move(errorType))
-    , errorMessage_(std::move(errorMessage))
-    , sourceReference_(std::move(sourceReference))
+    : errorType_(std::move(errorType)), errorMessage_(std::move(errorMessage)), sourceReference_(std::move(sourceReference))
   { }
 
   std::string
@@ -107,9 +116,15 @@ public:
 
     stream << "[";
     stream << errorType_;
+
     stream << " | Line ";
-    stream << lineNumber_;
+    if (sourceReference_) {
+      stream << sourceReference_->getLineNumber();
+    } else {
+      stream << "??";
+    }
     stream << "] ";
+
     stream << errorMessage_;
     stream << std::endl;
 
@@ -121,7 +136,6 @@ public:
   }
 
 private:
-  const unsigned lineNumber_;
   const std::string errorType_;
   const std::string errorMessage_;
   const std::unique_ptr<const SourceReference> sourceReference_;
