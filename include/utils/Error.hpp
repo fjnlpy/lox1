@@ -6,6 +6,7 @@
 #include <utility>
 #include <functional>
 #include <sstream>
+#include <algorithm>
 #include <vector>
 #include <string_view>
 
@@ -36,9 +37,11 @@ public:
     // TODO: ensure that all lines in `lines` end with a newline.
     result += lines[lineNumber_];
 
+    const unsigned numCharsBeforeError = std::max(0u, columnStart_ - 1);
+
     // Point out the columns containing the error.
-    result += std::string(columnStart_, '-');
-    result += std::string(columnEnd_ - columnStart_, '^');
+    result += std::string(numCharsBeforeError, '-');
+    result += std::string(columnEnd_ - numCharsBeforeError, '^');
     result += '\n';
 
     return result;
