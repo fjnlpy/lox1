@@ -5,6 +5,7 @@
 #include <sstream>
 #include <ostream>
 #include <functional>
+#include <memory>
 
 #include "utils/Error.hpp"
 
@@ -26,11 +27,11 @@ public:
     EOFF // "EOF" is already used, as a macro.
   };
 
-  Token(Type tokenType, unsigned lineNunber, std::string contents);
+  Token(Type tokenType, std::string contents, std::unique_ptr<const SourceReference> sourceReference);
 
   Type getType() const;
   const std::string &getContents() const;
-  unsigned getLineNumber() const;
+  const SourceReference *getSourceReference() const;
 
   friend std::ostream& operator<<(std::ostream&, const Token &);
   friend std::ostream& operator<<(std::ostream&, const Token::Type &);
@@ -38,7 +39,7 @@ public:
 private:
   const Type type_;
   const std::string contents_;
-  const unsigned lineNumber_;
+  const std::unique_ptr<const SourceReference> sourceReference_
 
 };
 

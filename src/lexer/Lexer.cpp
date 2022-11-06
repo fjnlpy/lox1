@@ -68,10 +68,10 @@ namespace lexer {
 
 /// Token
 
-Token::Token(Type tokenType, unsigned lineNumber, std::string contents)
+Token::Token(Type tokenType, std::string contents, std::unique_ptr<const SourceReference> sourceReference)
   : type_(tokenType)
   , contents_(std::move(contents))
-  , lineNumber_(lineNumber)
+  , sourceReference_(std::move(sourceReference))
   { }
 
 const std::string &
@@ -86,10 +86,10 @@ Token::getType() const
   return type_;
 }
 
-unsigned
-Token::getLineNumber() const
+const SourceReference *
+Token::getSourceReference() const
 {
-  return lineNumber_;
+  return sourceReference_.get();
 }
 
 // These methods basically invert what the lexer does. It's kind of
@@ -101,6 +101,10 @@ Token::getLineNumber() const
 // starting and ending line & column for each token), which we
 // could then go and re-read to recover the input. I think that's what
 // proper compilers do but I didn't think it was necessary at the time...
+// Edit: this actually exists now. I added it because it's useful for
+// error reporting. If I had designed it in from then start then
+// probably this stuff wouldn't have been necessary. Now that's it's
+// here, is it worth removing this?
 
 std::ostream &
 operator<<(std::ostream &os, const Token &token)
