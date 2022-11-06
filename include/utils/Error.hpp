@@ -23,9 +23,11 @@ public:
 
 class SingleLineReference final : public SourceReference {
 public:
-  unsigned lineNumber_;
-  unsigned columnStart_;
-  unsigned columnEnd_;
+  SingleLineReference(unsigned lineNumber, unsigned columnStart, unsigned columnEnd)
+    : lineNumber_(lineNumber), columnStart_(columnStart), columnEnd_(columnEnd)
+  {
+    ASSERT(columnEnd_ >= columnStart && "End column should not be smaller than start column.");
+  }
 
   virtual std::string resolve(const ProgramLines &lines) const override
   {
@@ -41,12 +43,20 @@ public:
 
     return result;
   }
+
+private:
+  unsigned lineNumber_;
+  unsigned columnStart_;
+  unsigned columnEnd_;
 };
 
 class MultilineReference final : public SourceReference {
 public:
-  unsigned lineStart_;
-  unsigned lineEnd_;
+  MultilineReference(unsigned lineStart, unsigned lineEnd)
+    : lineStart_(lineStart), lineEnd_(lineEnd)
+  {
+    ASSERT(lineEnd_ >= lineStart_ && "End line should not be smaller than start line.");
+  }
 
   virtual std::string resolve(const ProgramLines &lines) const override
   {
@@ -58,6 +68,10 @@ public:
 
     return result;
   }
+
+private:
+  unsigned lineStart_;
+  unsigned lineEnd_;
 };
 
 class CompileError {
