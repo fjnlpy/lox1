@@ -50,9 +50,9 @@ private:
   unsigned columnEnd_;
 };
 
-class MultilineReference final : public SourceReference {
+class MultiLineReference final : public SourceReference {
 public:
-  MultilineReference(unsigned lineStart, unsigned lineEnd)
+  MultiLineReference(unsigned lineStart, unsigned lineEnd)
     : lineStart_(lineStart), lineEnd_(lineEnd)
   {
     ASSERT(lineEnd_ >= lineStart_ && "End line should not be smaller than start line.");
