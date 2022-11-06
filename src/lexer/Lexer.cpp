@@ -233,6 +233,7 @@ Lexer::lex(const std::string &sourceCode)
   // Reset state from last call (if any).
   tokens_.clear();
   currentLine_ = 1;
+  currentColumn_ = -1;
   currentLex_.clear();
   errors_.clear();
 
@@ -263,10 +264,13 @@ Lexer::lex(const std::string &sourceCode)
 void
 Lexer::lex(char c)
 {
+  ++currentColumn_;
+
   // Whitespace.
   if (isWhitespace(c)) {
     if (c == '\n') {
       ++currentLine_;
+      currentColumn_ = -1;
     }
     // Ignore it.
     currentLex_.clear();
@@ -321,13 +325,11 @@ Lexer::lex(char c)
   }
 
   // Unrecognised character.
-  // TODO: better source snippet for this.
   errors_.push_back(
     CompileError(
-      currentLine_,
       ERROR_TAG,
       std::string("Unrecognized character: '") + c + "'; ASCII: " + std::to_string(static_cast<int>(c)),
-      ""
+      std::make_unique<SingleLineReference>(currentLine_, currentColumn_, currentColumn_)
     )
   );
 }
@@ -335,8 +337,13 @@ Lexer::lex(char c)
 void
 Lexer::addToken(Token::Type tokenType, bool includeContents)
 {
-  // TODO: should you always use emplace instead of move?
-  tokens_.push_back(Token(tokenType, currentLine_, includeContents ? std::move(currentLex_) : ""));
+  tokens_.push_back(
+    Token(
+      tokenType,
+      includeContents ? std::move(currentLex_) : "",
+      std::make_unique<SingleLineReference>(currentLine_, currentColumn_, currentColumn_ + currentLex_.size())
+    )
+  );
   currentLex_.clear();
 }
 
@@ -425,10 +432,9 @@ Lexer::lexString()
     // from earlier.
     errors_.push_back(
       CompileError(
-        currentLine_,
         ERROR_TAG,
         "Unterminated string at end of file",
-        currentLex_
+        std::make_unique<SingleLineReference>(currentLine_, currentColumn_, currentColumn_ + currentLex_.size())
       )
     );
   } else {
