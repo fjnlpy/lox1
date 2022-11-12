@@ -42,10 +42,10 @@ public:
   }
 
 private:
-  const unsigned lineNumber_;
-  const std::string errorType_;
-  const std::string errorMessage_;
-  const std::string sourceSnippet_;
+  unsigned lineNumber_;
+  std::string errorType_;
+  std::string errorMessage_;
+  std::string sourceSnippet_;
 };
 
 class ErrorCollection {
@@ -75,5 +75,5 @@ public:
   }
 
 private:
-  const std::vector<CompileError> errors_;
+  std::vector<CompileError> errors_;
 };

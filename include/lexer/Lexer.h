@@ -36,9 +36,9 @@ public:
   friend std::ostream& operator<<(std::ostream&, const Token::Type &);
 
 private:
-  const Type type_;
-  const std::string contents_;
-  const unsigned lineNumber_;
+  Type type_;
+  std::string contents_;
+  unsigned lineNumber_;
 
 };
 
