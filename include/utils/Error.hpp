@@ -4,48 +4,52 @@
 #include <exception>
 #include <utility>
 #include <sstream>
+#include <functional>
 #include <vector>
 
+#include "utils/SourceReference.hpp"
 #include "utils/Assert.hpp"
 
 class CompileError {
 public:
   CompileError(
-    unsigned lineNumber,
     std::string errorType,
     std::string errorMessage,
-    std::string sourceSnippet
-  )
-    : lineNumber_(lineNumber)
-    , errorType_(std::move(errorType))
-    , errorMessage_(std::move(errorMessage))
-    , sourceSnippet_(std::move(sourceSnippet))
+    std::optional<const SourceReference> sourceReference
+  ) : errorType_(std::move(errorType)),
+    errorMessage_(std::move(errorMessage)),
+    sourceReference_(std::move(sourceReference))
   { }
 
   std::string
-  what() const
+  what(std::optional<std::reference_wrapper<std::vector<std::string_view>>> lines = std::nullopt) const
   {
     std::stringstream stream;
 
     stream << "[";
     stream << errorType_;
     stream << " | Line ";
-    stream << lineNumber_;
+    if (sourceReference_) {
+      stream << sourceReference_->getLineNumber();
+    } else {
+      stream << "??";
+    }
     stream << "] ";
     stream << errorMessage_;
     stream << std::endl;
 
-    stream << sourceSnippet_;
-    stream << std::endl;
+    if (sourceReference_ && lines) {
+      stream << sourceReference_->resolve(*lines);
+      stream << std::endl;
+    }
 
     return stream.str();
   }
 
 private:
-  unsigned lineNumber_;
   std::string errorType_;
   std::string errorMessage_;
-  std::string sourceSnippet_;
+  std::optional<const SourceReference> sourceReference_;
 };
 
 class ErrorCollection {
@@ -57,12 +61,12 @@ public:
   }
 
   std::string
-  what() const
+  what(std::optional<std::reference_wrapper<std::vector<std::string_view>>> lines = std::nullopt) const
   {
     std::stringstream stream;
 
-    for (auto &error : errors_) {
-      stream << error.what() << std::endl;
+    for (const auto &error : errors_) {
+      stream << error.what(lines) << std::endl;
     }
 
     return stream.str();

@@ -229,6 +229,7 @@ Lexer::lex(const std::string &sourceCode)
   // Reset state from last call (if any).
   tokens_.clear();
   currentLine_ = 1;
+  currentColumn_ = 0;
   currentLex_.clear();
   errors_.clear();
 
@@ -259,10 +260,13 @@ Lexer::lex(const std::string &sourceCode)
 void
 Lexer::lex(char c)
 {
+  ++currentColumn_;
+
   // Whitespace.
   if (isWhitespace(c)) {
     if (c == '\n') {
       ++currentLine_;
+      currentColumn_ = 0; // will be incremented to 1 at start of next call to this method
     }
     // Ignore it.
     currentLex_.clear();
@@ -317,13 +321,11 @@ Lexer::lex(char c)
   }
 
   // Unrecognised character.
-  // TODO: better source snippet for this.
   errors_.push_back(
     CompileError(
-      currentLine_,
       ERROR_TAG,
       std::string("Unrecognized character: '") + c + "'; ASCII: " + std::to_string(static_cast<int>(c)),
-      ""
+      SourceReference(currentLine_, currentColumn_, currentColumn_)
     )
   );
 }
@@ -421,10 +423,9 @@ Lexer::lexString()
     // from earlier.
     errors_.push_back(
       CompileError(
-        currentLine_,
         ERROR_TAG,
         "Unterminated string at end of file",
-        currentLex_
+        SourceReference(currentLine_, currentColumn_, currentColumn_ + currentLex_.size())
       )
     );
   } else {

@@ -9,8 +9,6 @@
 #include "utils/Counter.hpp"
 #include "utils/Assert.hpp"
 
-// TODO: add source snippets to CompileErrors
-
 using lexer::Token;
 using ast::BinOp;
 using ast::UnaryOp;
@@ -44,10 +42,9 @@ Parser::parse(std::vector<Token> tokens)
   if (!isParsingSuccessful) {
     std::optional<Token> currentOrNull = current_ < tokens_.size() ? std::optional(current()) : std::nullopt;
     throw CompileError(
-      (currentOrNull ? currentOrNull->getLineNumber() : -1),
       ERROR_TAG,
       "Expected end of program but there were more tokens remaining.",
-      (currentOrNull ? currentOrNull->getContents() : "")
+      std::nullopt // TODO: pass SourceReference
     );
   }
 
@@ -239,7 +236,7 @@ Parser::expect(T &&... tokenTypes)
     std::stringstream message;
     message << "Unexpected end of file during parsing. Expected one of: ";
     ((message << std::forward<T>(tokenTypes) << ", "), ...);
-    throw CompileError(current().getLineNumber(), ERROR_TAG, message.str(), "");
+    throw CompileError(ERROR_TAG, message.str(), std::nullopt /*TODO: pass SourceReference*/);
   }
 
   const auto &nextToken = tokens_[current_ + 1];
@@ -256,7 +253,7 @@ Parser::expect(T &&... tokenTypes)
   // I think this leaves a trailing comma on the end.
   // Not ideal but I'm not sure how else to do it.
   ((message << std::forward<T>(tokenTypes) << ", "), ...);
-  throw CompileError(nextToken.getLineNumber(), ERROR_TAG, message.str(), "");
+  throw CompileError(ERROR_TAG, message.str(), std::nullopt /*TODO: pass SourceReference*/);
 }
 
 template <class BinOpMapFunc, class SubExprFunc, class... Ts>
@@ -295,15 +292,15 @@ Parser::textToDouble(const std::string &text)
   try {
     return std::stod(text);
   } catch (const std::invalid_argument &e) {
-    const auto &currentToken = current();
+    //const auto &currentToken = current();
     std::stringstream stream;
     stream << "Unable to parse number into double-precision floating point. ";
     stream << "Internal error: " << e.what();
-    throw CompileError(currentToken.getLineNumber(), ERROR_TAG, stream.str(), text);
+    throw CompileError(ERROR_TAG, stream.str(), std::nullopt /*TODO: pass SourceReference*/);
   } catch (const std::out_of_range &e) {
-    const auto &currentToken = current();
+    //const auto &currentToken = current();
     constexpr auto message = "Number is out of range of double-precision floating point, so cannot be represented.";
-    throw CompileError(currentToken.getLineNumber(), ERROR_TAG, message, text);
+    throw CompileError(ERROR_TAG, message, std::nullopt /*TODO: pass SourceReference*/);
   }
 }
 

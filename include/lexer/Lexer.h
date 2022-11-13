@@ -53,6 +53,7 @@ private:
   std::stringstream sourceCode_;
   std::vector<Token> tokens_;
   unsigned currentLine_ = 1;
+  unsigned currentColumn_ = 0;
   std::string currentLex_;
   std::vector<CompileError> errors_;
 
