@@ -163,17 +163,12 @@ Parser::primary()
     auto numDouble = textToDouble(numText);
     return ast::num(std::move(numDouble));
   } else if (auto op = match(Token::Type::STR)) {
-    // Unfortunately we need to copy this string because Tokens are immutable so we can't move
-    // from them. It's kind of silly because we won't need the tokens after parsing is done
-    // (in fact they are copied when we enter the parser, and it's expected that users will
-    // move their vector of tokens in). We could have something more similar to value semantics
-    // by popping tokens off of the token list when they are being consumed. Then we would
-    // have ownership of them and could genuinely move from them (e.g. could have an overload
-    // on getContents for rvalues that moves its string out by value, avoiding the copy).
-    // However it's nice that progressing the tokens is just done with an index because it's so
-    // easy to refer to the current token, because it's alive in the list. I wonder if that is
-    // even needed though -- is it sufficient just to return the string?
-    // Another point is that progressing with an index lets us easily rewind during "panic mode".
+    // Need to copy this string instead of moving in case we have to enter panic mode
+    // and undo this part of the parsing. The string's contents would need
+    // to be available when we come around again.
+    // It would have been better to just store references to the part of the
+    // source file containing the string and not try to carry around the
+    // contents of the string.
     auto string = op->get().getContents();
     return ast::string(std::move(string));
   } else if (auto op = match(Token::Type::TRUE)) {
