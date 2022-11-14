@@ -45,7 +45,7 @@ expectIdentifierToken(const Token &token, T &&contents, std::optional<unsigned> 
   EXPECT_EQ(Token::Type::ID, token.getType());
   EXPECT_EQ(std::forward<T>(contents), token.getContents());
   if (lineNumber) {
-    EXPECT_EQ(*lineNumber, token.getLineNumber());
+    EXPECT_EQ(*lineNumber, token.getSourceReference().value().getLineNumber());
   }
 }
 
@@ -201,7 +201,7 @@ TEST(LexerTests, TestLexComment) {
   const auto tokens = lexer.lex(input);
   ASSERT_EQ(1, tokens.size());
   EXPECT_EOF(tokens);
-  ASSERT_EQ(1, tokens[0].getLineNumber());
+  ASSERT_EQ(1, tokens[0].getSourceReference().value().getLineNumber());
 }
 
 TEST(LexerTests, TestLexCommentAndEndOfLine) {
@@ -210,7 +210,7 @@ TEST(LexerTests, TestLexCommentAndEndOfLine) {
   const auto tokens = lexer.lex(input);
   ASSERT_EQ(1, tokens.size());
   EXPECT_EOF(tokens);
-  ASSERT_EQ(2, tokens[0].getLineNumber())
+  ASSERT_EQ(2, tokens[0].getSourceReference().value().getLineNumber())
     << "Due to newline, EOF should be on second line";
 }
 
@@ -220,7 +220,7 @@ TEST(LexerTests, TestLexCommentWithManySlashes) {
   const auto tokens = lexer.lex(input);
   ASSERT_EQ(1, tokens.size());
   EXPECT_EOF(tokens);
-  ASSERT_EQ(1, tokens[0].getLineNumber());
+  ASSERT_EQ(1, tokens[0].getSourceReference().value().getLineNumber());
 }
 
 TEST(LexerTests, TextSingleAndMultiCharTokens) {

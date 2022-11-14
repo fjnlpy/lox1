@@ -26,19 +26,22 @@ public:
     EOFF // "EOF" is already used, as a macro.
   };
 
-  Token(Type tokenType, unsigned lineNunber, std::string contents);
+  Token(Type, std::string, std::optional<const SourceReference>);
 
   Type getType() const;
   const std::string &getContents() const;
-  unsigned getLineNumber() const;
+  std::optional<SourceReference> getSourceReference() const;
 
   friend std::ostream& operator<<(std::ostream&, const Token &);
   friend std::ostream& operator<<(std::ostream&, const Token::Type &);
 
 private:
   Type type_;
+  // The contents don't actually need to be stored here as long as whenever `getContents`
+  // is called the original program text is available: then we could look up the source reference
+  // in the program text (although what if the source reference hasn't been provided?).
   std::string contents_;
-  unsigned lineNumber_;
+  std::optional<const SourceReference> sourceReference_;
 
 };
 

@@ -68,10 +68,10 @@ namespace lexer {
 
 /// Token
 
-Token::Token(Type tokenType, unsigned lineNumber, std::string contents)
-  : type_(tokenType)
-  , contents_(std::move(contents))
-  , lineNumber_(lineNumber)
+Token::Token(Type tokenType, std::string contents, std::optional<const SourceReference> sourceReference)
+  : type_(tokenType),
+    contents_(std::move(contents)),
+    sourceReference_(std::move(sourceReference))
   { }
 
 const std::string &
@@ -86,10 +86,10 @@ Token::getType() const
   return type_;
 }
 
-unsigned
-Token::getLineNumber() const
+std::optional<SourceReference>
+Token::getSourceReference() const
 {
-  return lineNumber_;
+  return sourceReference_;
 }
 
 // These methods basically invert what the lexer does. It's kind of
@@ -99,8 +99,8 @@ Token::getLineNumber() const
 // almost all token types. Probably the best way to do it would be to
 // make token effectively a range onto the input program (by storing
 // starting and ending line & column for each token), which we
-// could then go and re-read to recover the input. I think that's what
-// proper compilers do but I didn't think it was necessary at the time...
+// could then go and re-read to recover the input. The code for doing that
+// exists now but I don't think it's worth going back and revising this.
 
 std::ostream &
 operator<<(std::ostream &os, const Token &token)
@@ -333,8 +333,13 @@ Lexer::lex(char c)
 void
 Lexer::addToken(Token::Type tokenType, bool includeContents)
 {
-  // TODO: should you always use emplace instead of move?
-  tokens_.push_back(Token(tokenType, currentLine_, includeContents ? std::move(currentLex_) : ""));
+  tokens_.push_back(
+    Token(
+      tokenType,
+      includeContents ? std::move(currentLex_) : "",
+      SourceReference(currentLine_, currentColumn_, currentColumn_ + currentLex_.size() - 1)
+    )
+  );
   currentLex_.clear();
 }
 

@@ -44,7 +44,7 @@ Parser::parse(std::vector<Token> tokens)
     throw CompileError(
       ERROR_TAG,
       "Expected end of program but there were more tokens remaining.",
-      std::nullopt // TODO: pass SourceReference
+      currentOrNull ? currentOrNull->getSourceReference() : std::nullopt
     );
   }
 
@@ -236,7 +236,7 @@ Parser::expect(T &&... tokenTypes)
     std::stringstream message;
     message << "Unexpected end of file during parsing. Expected one of: ";
     ((message << std::forward<T>(tokenTypes) << ", "), ...);
-    throw CompileError(ERROR_TAG, message.str(), std::nullopt /*TODO: pass SourceReference*/);
+    throw CompileError(ERROR_TAG, message.str(), current().getSourceReference());
   }
 
   const auto &nextToken = tokens_[current_ + 1];
@@ -253,7 +253,7 @@ Parser::expect(T &&... tokenTypes)
   // I think this leaves a trailing comma on the end.
   // Not ideal but I'm not sure how else to do it.
   ((message << std::forward<T>(tokenTypes) << ", "), ...);
-  throw CompileError(ERROR_TAG, message.str(), std::nullopt /*TODO: pass SourceReference*/);
+  throw CompileError(ERROR_TAG, message.str(), current().getSourceReference());
 }
 
 template <class BinOpMapFunc, class SubExprFunc, class... Ts>
@@ -292,15 +292,15 @@ Parser::textToDouble(const std::string &text)
   try {
     return std::stod(text);
   } catch (const std::invalid_argument &e) {
-    //const auto &currentToken = current();
+    const auto &currentToken = current();
     std::stringstream stream;
     stream << "Unable to parse number into double-precision floating point. ";
     stream << "Internal error: " << e.what();
-    throw CompileError(ERROR_TAG, stream.str(), std::nullopt /*TODO: pass SourceReference*/);
+    throw CompileError(ERROR_TAG, stream.str(), currentToken.getSourceReference());
   } catch (const std::out_of_range &e) {
-    //const auto &currentToken = current();
+    const auto &currentToken = current();
     constexpr auto message = "Number is out of range of double-precision floating point, so cannot be represented.";
-    throw CompileError(ERROR_TAG, message, std::nullopt /*TODO: pass SourceReference*/);
+    throw CompileError(ERROR_TAG, message, currentToken.getSourceReference());
   }
 }
 

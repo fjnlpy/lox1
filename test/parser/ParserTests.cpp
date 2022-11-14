@@ -60,8 +60,8 @@ TEST(ParserTests, TestPrimaryExpression) {
 
   auto expr = parser.parse(
     {
-      Token(Token::Type::STR, 1, "hello"),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::STR, "hello", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 
@@ -72,14 +72,14 @@ TEST(ParserTests, TestOperatorPrecedence) {
   Parser parser;
 
   Expr actual = parser.parse({
-    Token(Token::Type::NUM, 1, "1"),
-    Token(Token::Type::PLUS, 1, ""),
-    Token(Token::Type::NUM, 1, "2"),
-    Token(Token::Type::STAR, 1, ""),
-    Token(Token::Type::NUM, 1, "3"),
-    Token(Token::Type::PLUS, 1, ""),
-    Token(Token::Type::NUM, 1, "4"),
-    Token(Token::Type::EOFF, 1, ""),
+    Token(Token::Type::NUM, "1", std::nullopt),
+    Token(Token::Type::PLUS, "", std::nullopt),
+    Token(Token::Type::NUM, "2", std::nullopt),
+    Token(Token::Type::STAR, "", std::nullopt),
+    Token(Token::Type::NUM, "3", std::nullopt),
+    Token(Token::Type::PLUS, "", std::nullopt),
+    Token(Token::Type::NUM, "4", std::nullopt),
+    Token(Token::Type::EOFF, "", std::nullopt),
   });
 
   Expr expected = add(add(num(1), mult(num(2), num(3))), num(4));
@@ -89,9 +89,9 @@ TEST(ParserTests, TestOperatorPrecedence) {
 
 TEST(ParserTests, TestTrailingBinOp) {
   assertDoesNotCompile({
-    Token(Token::Type::NUM, 1, "1"),
-    Token(Token::Type::EQ_EQ, 1, ""),
-    Token(Token::Type::EOFF, 1, ""),
+    Token(Token::Type::NUM, "1", std::nullopt),
+    Token(Token::Type::EQ_EQ, "", std::nullopt),
+    Token(Token::Type::EOFF, "", std::nullopt),
   });
 }
 
@@ -100,14 +100,14 @@ TEST(ParserTests, TestGrouping) {
 
   Expr actual = parser.parse(
     {
-      Token(Token::Type::LPEREN, 1, ""),
-      Token(Token::Type::NUM, 1, "1"),
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::NUM, 1, "2"),
-      Token(Token::Type::RPEREN, 1, ""),
-      Token(Token::Type::STAR, 1, ""),
-      Token(Token::Type::NUM, 3, "3"),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::LPEREN, "", std::nullopt),
+      Token(Token::Type::NUM, "1", std::nullopt),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::NUM, "2", std::nullopt),
+      Token(Token::Type::RPEREN, "", std::nullopt),
+      Token(Token::Type::STAR, "", std::nullopt),
+      Token(Token::Type::NUM, "3", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 
@@ -119,15 +119,15 @@ TEST(ParserTests, TestGrouping) {
 TEST(ParserTests, TestUnclosedGroup) {
   assertDoesNotCompile(
     {
-      Token(Token::Type::NUM, 1, "1"),
-      Token(Token::Type::PLUS, 1, ""),
-      Token(Token::Type::LPEREN, 1, ""),
-      Token(Token::Type::NUM, 1, "2"),
-      Token(Token::Type::PLUS, 1, ""),
-      Token(Token::Type::NUM, 1, "3"),
+      Token(Token::Type::NUM, "1", std::nullopt),
+      Token(Token::Type::PLUS, "", std::nullopt),
+      Token(Token::Type::LPEREN, "", std::nullopt),
+      Token(Token::Type::NUM, "2", std::nullopt),
+      Token(Token::Type::PLUS, "", std::nullopt),
+      Token(Token::Type::NUM, "3", std::nullopt),
       // Missing bracket:
-      //Token(Token::Type::RPEREN, 1, ""),
-      Token(Token::Type::EOFF, 1, ""),
+      //Token(Token::Type::RPEREN, "", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 }
@@ -137,13 +137,13 @@ TEST(ParserTests, TestNestedUnaryOps) {
 
   Expr actual = parser.parse(
     {
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::NUM, 1, "1"),
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::NUM, 1, "2"),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::NUM, "1", std::nullopt),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::NUM, "2", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 
@@ -155,11 +155,11 @@ TEST(ParserTests, TestNestedUnaryOps) {
 TEST(ParserTests, TestLeadingBinOp) {
   assertDoesNotCompile(
     {
-      Token(Token::Type::SLASH, 1, ""),
-      Token(Token::Type::NUM, 1, "10"),
-      Token(Token::Type::MINUS, 1, ""),
-      Token(Token::Type::NUM, 1, "9"),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::SLASH, "", std::nullopt),
+      Token(Token::Type::NUM, "10", std::nullopt),
+      Token(Token::Type::MINUS, "", std::nullopt),
+      Token(Token::Type::NUM, "9", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 }
@@ -167,9 +167,9 @@ TEST(ParserTests, TestLeadingBinOp) {
 TEST(ParserTests, TestInvalidPrimaryExpression) {
   assertDoesNotCompile(
     {
-      Token(Token::Type::NIL, 1, ""),
-      Token(Token::Type::NIL, 1, ""),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::NIL, "", std::nullopt),
+      Token(Token::Type::NIL, "", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 }
@@ -184,8 +184,8 @@ TEST(ParserTests, TestUnsupportedNumber) {
       // catching and forwarding the exceptions that the STL throws.
       // And we need to test it somehow so just throw some junk in -- this should
       // never get past the lexer in the first place.
-      Token(Token::Type::NUM, 1, "thisisnotanumber"),
-      Token(Token::Type::EOFF, 1, "")
+      Token(Token::Type::NUM, "thisisnotanumber", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt)
     }
   );
 }
@@ -193,11 +193,11 @@ TEST(ParserTests, TestUnsupportedNumber) {
 TEST(ParserTests, TestEOFNotEndOfProgram) {
   assertDoesNotCompile(
     {
-      Token(Token::Type::NUM, 1, "1"),
-      Token(Token::Type::EOFF, 1, ""), // This EOF should cause problems.
-      Token(Token::Type::PLUS, 1, ""),
-      Token(Token::Type::NUM, 1, "1"),
-      Token(Token::Type::EOFF, 1, ""),
+      Token(Token::Type::NUM, "1", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt), // This EOF should cause problems.
+      Token(Token::Type::PLUS, "", std::nullopt),
+      Token(Token::Type::NUM, "1", std::nullopt),
+      Token(Token::Type::EOFF, "", std::nullopt),
     }
   );
 }
