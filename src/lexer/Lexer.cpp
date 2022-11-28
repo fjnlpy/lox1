@@ -229,7 +229,7 @@ Lexer::lex(const std::string &sourceCode)
   // Reset state from last call (if any).
   tokens_.clear();
   currentLine_ = 1;
-  currentColumn_ = 0;
+  currentColumn_ = 1;
   currentLex_.clear();
   errors_.clear();
 
@@ -260,15 +260,19 @@ Lexer::lex(const std::string &sourceCode)
 void
 Lexer::lex(char c)
 {
-  ++currentColumn_;
 
   // Whitespace.
   if (isWhitespace(c)) {
+    // Increment column here because we won't be using one of the helper
+    // methods that usually does it (explained below).
+    ++currentColumn_;
     if (c == '\n') {
       ++currentLine_;
-      currentColumn_ = 0; // will be incremented to 1 at start of next call to this method
+      currentColumn_ = 1;
     }
     // Ignore it.
+    // Note we don't use the lex-clearing helper here because that would mess with the column
+    // count but we want special logic for that in case the whitespace is a newline.
     currentLex_.clear();
     return;
   }
@@ -328,18 +332,52 @@ Lexer::lex(char c)
       SourceReference(currentLine_, currentColumn_, currentColumn_)
     )
   );
+  clearCurrentLex();
 }
 
 void
 Lexer::addToken(Token::Type tokenType, bool includeContents)
 {
+  ASSERT(
+    (tokenType == Token::Type::EOFF || currentLex_.size() != 0)
+      && "Size should be zero for EOF only, since it doesn't appear in input stream."
+  );
+
+  const auto colEnd = currentColumn_ + currentLex_.size() - 1;
+  currentColumn_ = colEnd + 1;
+
+  auto contents = [this, includeContents, tokenType]() {
+    if (!includeContents) return std::string("");
+
+    if (tokenType == Token::Type::STR) {
+      ASSERT(currentLex_.size() >= 2 && "String lexes should at least contain start and end quotes.");
+      // Remove the quotes around the string because they aren't really part of the content.
+      currentLex_.erase(0, 1);
+      currentLex_.erase(currentLex_.size() - 2, 1);
+    }
+
+    return std::move(currentLex_);
+  }();
+
   tokens_.push_back(
     Token(
       tokenType,
-      includeContents ? std::move(currentLex_) : "",
-      SourceReference(currentLine_, currentColumn_, currentColumn_ + currentLex_.size() - 1)
+      std::move(contents),
+      // There is no specific part of the input that corresponds to EOF, so capture the whole
+      // line instead.
+      tokenType == Token::Type::EOFF ? std::optional(SourceReference(currentLine_)) :
+        std::optional(SourceReference(currentLine_, currentColumn_, colEnd))
     )
   );
+
+  currentLex_.clear();
+}
+
+// This is used when we grab some characters from the stream that aren't relevant to the compiler, e.g. comments.
+void
+Lexer::clearCurrentLex()
+{
+  currentColumn_ += currentLex_.size();
   currentLex_.clear();
 }
 
@@ -400,11 +438,11 @@ Lexer::lexComment()
         !isEof(next) && next != '\n';
         next = sourceCode_.peek()
   ) {
-    sourceCode_.get(); // don't add to current lex since we don't want to keep it
+    consume();
   }
 
   // Discard all the characters in the comment. They are not useful to the compiler.
-  currentLex_.clear();
+  clearCurrentLex();
 }
 
 void
@@ -430,16 +468,12 @@ Lexer::lexString()
       CompileError(
         ERROR_TAG,
         "Unterminated string at end of file",
-        SourceReference(currentLine_, currentColumn_, currentColumn_ + currentLex_.size())
+        SourceReference(currentLine_, currentColumn_, currentColumn_ + currentLex_.size() - 1)
       )
     );
+    clearCurrentLex();
   } else {
-    const char c = sourceCode_.get(); // discard the '"'
-    ASSERT(c == '"');
-
-    // Make the token. It currently starts with a '"'; we
-    // don't want that in the input so we have to remove it.
-    currentLex_.erase(currentLex_.begin());
+    consume(); // should be a '"'
     addToken(Token::Type::STR, true);
   }
 }

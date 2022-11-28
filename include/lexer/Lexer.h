@@ -62,6 +62,7 @@ private:
 
   void lex(char c);
   void addToken(Token::Type tokenType, bool includeContents = false);
+  void clearCurrentLex();
   bool match(char d);
   bool match(const std::function<bool(char)> &predicate);
   int peekNext();
