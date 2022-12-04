@@ -169,6 +169,7 @@ operator<<(std::ostream &os, const Token::Type &tokenType)
     case Token::Type::STR:       os << "STR"; break;
     case Token::Type::NUM:       os << "NUM"; break;
     case Token::Type::EOFF:      os << "EOF"; break;
+    case Token::Type::START:     os << "START"; break;
   }
 
   switch (tokenType) {
@@ -208,7 +209,7 @@ operator<<(std::ostream &os, const Token::Type &tokenType)
     case Token::Type::VAR:       os << "('var')"; break;
     case Token::Type::WHILE:     os << "('while')"; break;
     // For the other cases, either there is no literal string
-    // representation (EOF) or there are multiple (identifiers,
+    // representation (EOF, START) or there are multiple (identifiers,
     // strings, etc.). If you want to print one of these tokens,
     // use the token ostream operator instead, which will also
     // output the captured contents for that token.
@@ -228,6 +229,9 @@ Lexer::lex(const std::string &sourceCode)
   sourceCode_ = std::stringstream(sourceCode);
   // Reset state from last call (if any).
   tokens_.clear();
+  // Used by parser so it has something to point to before it has consumed
+  // any "real" tokens.
+  tokens_.push_back(Token(Token::Type::START, "", std::nullopt));
   currentLine_ = 1;
   currentColumn_ = 1;
   currentLex_.clear();
@@ -253,7 +257,6 @@ Lexer::lex(const std::string &sourceCode)
   }
 
   addToken(Token::Type::EOFF);
-  // TODO: I think move is correct here because tokens_ isn't a local var -- check effective cpp book.
   return std::move(tokens_);
 }
 

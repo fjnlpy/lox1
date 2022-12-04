@@ -23,7 +23,9 @@ public:
     AND, CLASS, ELSE, TRUE, FALSE, FUN, FOR, IF, NIL, OR,
     PRINT, RETURN, SUPER, THIS, VAR, WHILE,
 
-    EOFF // "EOF" is already used, as a macro.
+    EOFF, // "EOF" is already used, as a macro.
+
+    START
   };
 
   Token(Type, std::string, std::optional<const SourceReference>);

@@ -60,6 +60,7 @@ TEST(ParserTests, TestPrimaryExpression) {
 
   auto expr = parser.parse(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::STR, "hello", std::nullopt),
       Token(Token::Type::EOFF, "", std::nullopt),
     }
@@ -72,6 +73,7 @@ TEST(ParserTests, TestOperatorPrecedence) {
   Parser parser;
 
   Expr actual = parser.parse({
+    Token(Token::Type::START, "", std::nullopt),
     Token(Token::Type::NUM, "1", std::nullopt),
     Token(Token::Type::PLUS, "", std::nullopt),
     Token(Token::Type::NUM, "2", std::nullopt),
@@ -89,6 +91,7 @@ TEST(ParserTests, TestOperatorPrecedence) {
 
 TEST(ParserTests, TestTrailingBinOp) {
   assertDoesNotCompile({
+    Token(Token::Type::START, "", std::nullopt),
     Token(Token::Type::NUM, "1", std::nullopt),
     Token(Token::Type::EQ_EQ, "", std::nullopt),
     Token(Token::Type::EOFF, "", std::nullopt),
@@ -100,6 +103,7 @@ TEST(ParserTests, TestGrouping) {
 
   Expr actual = parser.parse(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::LPEREN, "", std::nullopt),
       Token(Token::Type::NUM, "1", std::nullopt),
       Token(Token::Type::MINUS, "", std::nullopt),
@@ -119,6 +123,7 @@ TEST(ParserTests, TestGrouping) {
 TEST(ParserTests, TestUnclosedGroup) {
   assertDoesNotCompile(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::NUM, "1", std::nullopt),
       Token(Token::Type::PLUS, "", std::nullopt),
       Token(Token::Type::LPEREN, "", std::nullopt),
@@ -137,6 +142,7 @@ TEST(ParserTests, TestNestedUnaryOps) {
 
   Expr actual = parser.parse(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::MINUS, "", std::nullopt),
       Token(Token::Type::NUM, "1", std::nullopt),
       Token(Token::Type::MINUS, "", std::nullopt),
@@ -155,6 +161,7 @@ TEST(ParserTests, TestNestedUnaryOps) {
 TEST(ParserTests, TestLeadingBinOp) {
   assertDoesNotCompile(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::SLASH, "", std::nullopt),
       Token(Token::Type::NUM, "10", std::nullopt),
       Token(Token::Type::MINUS, "", std::nullopt),
@@ -167,6 +174,7 @@ TEST(ParserTests, TestLeadingBinOp) {
 TEST(ParserTests, TestInvalidPrimaryExpression) {
   assertDoesNotCompile(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::NIL, "", std::nullopt),
       Token(Token::Type::NIL, "", std::nullopt),
       Token(Token::Type::EOFF, "", std::nullopt),
@@ -174,16 +182,17 @@ TEST(ParserTests, TestInvalidPrimaryExpression) {
   );
 }
 
+// I tried to use a long number here, hoping that the standard library would
+// complain but it seems to just round the number to the closest thing
+// it can represent. I'm not sure if that's always the case or if it's
+// platform-specific, so I think it's good to have code in the parser for
+// catching and forwarding the exceptions that the STL throws.
+// And we need to test it somehow so just throw some junk in -- this should
+// never get past the lexer in the first place.
 TEST(ParserTests, TestUnsupportedNumber) {
   assertDoesNotCompile(
     {
-      // I tried to use a long number here, hoping that the standard library would
-      // complain but it seems to just round the number to the closest thing
-      // it can represent. I'm not sure if that's always the case or if it's
-      // platform-specific, so I think it's good to have code in the parser for
-      // catching and forwarding the exceptions that the STL throws.
-      // And we need to test it somehow so just throw some junk in -- this should
-      // never get past the lexer in the first place.
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::NUM, "thisisnotanumber", std::nullopt),
       Token(Token::Type::EOFF, "", std::nullopt)
     }
@@ -193,6 +202,7 @@ TEST(ParserTests, TestUnsupportedNumber) {
 TEST(ParserTests, TestEOFNotEndOfProgram) {
   assertDoesNotCompile(
     {
+      Token(Token::Type::START, "", std::nullopt),
       Token(Token::Type::NUM, "1", std::nullopt),
       Token(Token::Type::EOFF, "", std::nullopt), // This EOF should cause problems.
       Token(Token::Type::PLUS, "", std::nullopt),

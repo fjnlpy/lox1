@@ -4,6 +4,7 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <functional>
 
 #include "utils/Error.hpp"
 #include "utils/Counter.hpp"
@@ -28,9 +29,9 @@ namespace parser {
 Expr
 Parser::parse(std::vector<Token> tokens)
 {
-  current_ = -1;
+  current_ = 0;
   tokens_ = std::move(tokens);
- 
+
   // Exceptions flow out of here if parsing fails. Once we add statements, there will be
   // some kind of error recovery & error accumulation here, like in the lexer.
   auto expr = expression();
