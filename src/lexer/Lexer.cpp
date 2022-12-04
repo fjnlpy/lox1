@@ -344,7 +344,6 @@ Lexer::addToken(Token::Type tokenType, bool includeContents)
   );
 
   const auto colEnd = currentColumn_ + currentLex_.size() - 1;
-  currentColumn_ = colEnd + 1;
 
   auto contents = [this, includeContents, tokenType]() {
     if (!includeContents) return std::string("");
@@ -371,6 +370,7 @@ Lexer::addToken(Token::Type tokenType, bool includeContents)
   );
 
   currentLex_.clear();
+  currentColumn_ = colEnd + 1;
 }
 
 // This is used when we grab some characters from the stream that aren't relevant to the compiler, e.g. comments.
