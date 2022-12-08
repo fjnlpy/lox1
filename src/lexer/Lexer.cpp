@@ -6,6 +6,7 @@
 
 #include "utils/Error.hpp"
 #include "utils/Assert.hpp"
+#include "utils/Logging.hpp"
 
 namespace {
 
@@ -355,12 +356,15 @@ Lexer::addToken(Token::Type tokenType, bool includeContents)
       ASSERT(currentLex_.size() >= 2 && "String lexes should at least contain start and end quotes.");
       // Remove the quotes around the string because they aren't really part of the content.
       currentLex_.erase(0, 1);
-      currentLex_.erase(currentLex_.size() - 2, 1);
+      currentLex_.erase(currentLex_.size() - 1, 1);
     }
 
     return std::move(currentLex_);
   }();
 
+  LOGE(currentLine_);
+  LOGE(currentColumn_);
+  LOGE(colEnd);
   tokens_.push_back(
     Token(
       tokenType,

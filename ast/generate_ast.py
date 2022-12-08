@@ -13,11 +13,16 @@ def resolve(classes):
   for _, c in classes["subClasses"].items():
     c["children"] += common_children
 
-  # Split the child definitions into (type,name) pairs.
+  # Split the child definitions into (type,name,default_value) triples.
+  # The default value is None if there isn't one provided.
   def split_child(child):
     split = child.split(" ")
-    assert len(split) == 2, f"Expected exactly two parts after splitting child on space: {split}"
-    return split
+    assert len(split) == 2 or len(split) == 4 and split[2] == "=", (
+      f"Expected either exactly two parts or exactly four parts with an equals in" + 
+        f"the third part after splitting child on space: {split}"
+    )
+    default_value = None if len(split) == 2 else split[3]
+    return (split[0], split[1], default_value)
 
   for _,c in classes["subClasses"].items():
     c["children"] = [split_child(child) for child in c["children"]]
@@ -244,6 +249,8 @@ def make_factory_funs_snippet(subclasses, auto_provided_defs):
           n not in auto_provided_defs and (enum_name_and_value is None or t != enum_name_and_value["name"])
         )
       ])
+    # TODO: extract helper for above line and include default value if it's not None.
+    # TODO: add SourceReference to AST nodes (shared child), with std::nullopt default, and #includes
     # Argument types need to be fully specified (including qualifications on enum values).
     # The compiler can't seem to infer them from the arguments and return type.
     argument_types = ",\n".join([

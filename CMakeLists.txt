@@ -34,6 +34,7 @@ set(TEST_SOURCES  test/lexer/TokenTests.cpp
                   test/ast/AstTests.cpp
                   test/visit/PrettyPrinterTests.cpp
                   test/parser/ParserTests.cpp
+                  test/visit/EvaluatorTests.cpp
 )
 add_executable(
   tests
